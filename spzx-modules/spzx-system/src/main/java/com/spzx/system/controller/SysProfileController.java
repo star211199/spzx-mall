@@ -33,8 +33,7 @@ import com.spzx.system.service.ISysUserService;
  */
 @RestController
 @RequestMapping("/user/profile")
-public class SysProfileController extends BaseController
-{
+public class SysProfileController extends BaseController {
     @Autowired
     private ISysUserService userService;
 

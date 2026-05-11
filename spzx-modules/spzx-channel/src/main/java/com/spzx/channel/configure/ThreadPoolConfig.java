@@ -35,8 +35,8 @@ public class ThreadPoolConfig {
                     executor.submit(runnable);
                 }
         );
-        //threadPoolExecutor.prestartAllCoreThreads(); //初始化最大线程数
-        threadPoolExecutor.prestartCoreThread(); //初始化核心线程数
+        //threadPoolExecutor.prestartAllCoreThreads(); //初始化所有核心线程数
+        threadPoolExecutor.prestartCoreThread(); //初始化1个核心线程数
 
         //threadPoolExecutor.shutdown();
         return threadPoolExecutor;

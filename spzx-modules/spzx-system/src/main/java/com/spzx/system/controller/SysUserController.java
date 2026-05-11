@@ -4,9 +4,12 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import com.alibaba.nacos.common.utils.MD5Utils;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -73,7 +76,7 @@ public class SysUserController extends BaseController
     @GetMapping("/list")
     public TableDataInfo list(SysUser user)
     {
-        startPage();
+        startPage(); // 自动分页处理
         List<SysUser> list = userService.selectUserList(user);
         return getDataTable(list);
     }
@@ -326,5 +329,20 @@ public class SysUserController extends BaseController
     public AjaxResult deptTree(SysDept dept)
     {
         return success(deptService.selectDeptTreeList(dept));
+    }
+
+    public static void main(String[] args) {
+        // 使用MD5对密码进行加密
+        String s1 = MD5Utils.encodeHexString("123456".getBytes());
+        System.out.println("s1 = " + s1);
+        String s2 = MD5Utils.encodeHexString("123456".getBytes());
+        System.out.println("s2 = " + s2);
+
+        // 使用BCryptPasswordEncoder对密码进行加密
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        String encode1 = encoder.encode("123456");
+        System.out.println("encode1 = " + encode1);
+        String encode2 = encoder.encode("123456");
+        System.out.println("encode2 = " + encode2);
     }
 }

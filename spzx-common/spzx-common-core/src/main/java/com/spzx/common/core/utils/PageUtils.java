@@ -10,8 +10,7 @@ import com.spzx.common.core.web.page.TableSupport;
  *
  * @author spzx
  */
-public class PageUtils extends PageHelper
-{
+public class PageUtils extends PageHelper {
     /**
      * 设置请求分页数据
      */

@@ -24,16 +24,14 @@ import org.springframework.web.bind.annotation.RestController;
  * @author spzx
  */
 @RestController
-public class BaseController
-{
+public class BaseController {
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
      * 将前台传递过来的日期格式的字符串，自动转化为Date类型
      */
     @InitBinder
-    public void initBinder(WebDataBinder binder)
-    {
+    public void initBinder(WebDataBinder binder) {
         // Date 类型转换
         binder.registerCustomEditor(Date.class, new PropertyEditorSupport()
         {
