@@ -31,7 +31,8 @@ import java.util.Map;
 @Tag(name = "商品管理")
 @RestController
 @RequestMapping("/product")
-public class ProductController extends BaseController {
+public class
+ProductController extends BaseController {
 
     @Autowired
     private IProductService productService;
@@ -187,5 +188,12 @@ public class ProductController extends BaseController {
         return R.ok(productService.getSkuStock(skuId));
     }
     //----详情 end------------------------------
-
+    @InnerAuth
+    @Operation(summary = "校验库存和减库存")
+    @GetMapping("/checkAndSubStock/{skuId}/{skuNum}")
+    public R<String> checkAndSubStock(@PathVariable Long skuId,@PathVariable Integer skuNum) {
+        // 调用checkAndSubStock中的方法校验和减库存
+        String msg = productService.checkAndSubStock(skuId, skuNum);
+        return R.ok(msg);
+    }
 }

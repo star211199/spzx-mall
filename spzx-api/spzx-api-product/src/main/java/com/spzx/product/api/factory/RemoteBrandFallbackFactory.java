@@ -14,6 +14,7 @@ import java.util.List;
 //@Slf4j
 @Component
 public class RemoteBrandFallbackFactory implements FallbackFactory<RemoteBrandService> {
+    // 根据当前类创建一个专属日志实例
     private static final Logger log = LoggerFactory.getLogger(RemoteBrandFallbackFactory.class);
 
     @Override

@@ -29,5 +29,4 @@ public class IndexController extends BaseController {
         Map<String,Object> indexData = indexService.index();
         return success(indexData);
     }
-
 }

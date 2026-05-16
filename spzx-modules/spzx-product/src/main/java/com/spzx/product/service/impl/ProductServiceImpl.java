@@ -1,9 +1,13 @@
 package com.spzx.product.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.spzx.common.core.exception.ServiceException;
 import com.spzx.common.core.utils.bean.BeanUtils;
+import com.spzx.common.core.web.domain.BaseEntity;
 import com.spzx.product.api.domain.Product;
 import com.spzx.product.api.domain.ProductDetails;
 import com.spzx.product.api.domain.ProductSku;
@@ -19,11 +23,14 @@ import com.spzx.product.service.IProductService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.spi.LocaleNameProvider;
 import java.util.stream.Collectors;
 
 /**
@@ -136,11 +143,20 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 
     @Override
     public int updateProduct(Product product) {
+        //2.更新SKU   List<ProductSku>（使用双删除的模式删除数据）
+        // 在更新之前删除缓存,根据SkuId来进行删除Sku的缓存数据
+        List<ProductSku> productSkuList = product.getProductSkuList();
+        List<Long> skuIds = productSkuList.stream().map(BaseEntity::getId).collect(Collectors.toList());
+        skuIds.forEach(skuId -> {
+            redisTemplate.delete("product:sku:" + skuId);
+            log.info("更新是调用了删除方法" + skuId);
+        });
+
         //1.更新Product
         productMapper.updateById(product);
 
-        //2.更新SKU   List<ProductSku>
-        List<ProductSku> productSkuList = product.getProductSkuList();
+
+        // 更新SKU
         if (CollectionUtils.isEmpty(productSkuList)) {
             throw new ServiceException("SKU数据为空");
         }
@@ -159,6 +175,17 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
                 .selectOne(new LambdaQueryWrapper<ProductDetails>().eq(ProductDetails::getProductId, product.getId()));
         productDetails.setImageUrls(String.join(",", product.getDetailsImageUrlList()));
         productDetailsMapper.updateById(productDetails);
+
+        // 睡觉延迟
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        // 再次进行删除
+        skuIds.forEach(skuId -> {
+            redisTemplate.delete("product:sku:" + skuId);
+        });
 
         return 1;
     }
@@ -203,12 +230,28 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     public void updateStatus(Long id, Integer status) {
         Product product = new Product();
         product.setId(id);
+        // 更新状态时，同时更新Redis中的位图
+        List<ProductSku> productSkus = productSkuMapper.selectList(new LambdaQueryWrapper<ProductSku>().eq(ProductSku::getProductId, id));
+        // 通过productSkus获取skuIds
+        List<Long> skuIds = productSkus.stream().map(ProductSku::getId).toList();
+
         if (status == 1) {
             product.setStatus(1);
+            // 放入到位图当中
+            skuIds.forEach(skuId -> {
+                redisTemplate.opsForValue().setBit("product:sku:data", skuId, true);
+            });
         } else {
             product.setStatus(-1);
+            // 从位图中删除
+            skuIds.forEach(skuId -> {
+                redisTemplate.opsForValue().setBit("product:sku:data", skuId, false);
+            });
         }
         productMapper.updateById(product);
+
+        // 更新对应商品的sku状态
+        productSkuMapper.update(null, new LambdaUpdateWrapper<ProductSku>().set(ProductSku::getStatus, status).eq(ProductSku::getProductId, id));
     }
 
 
@@ -231,6 +274,59 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 
     @Override
     public ProductSku getProductSku(Long skuId) {
+        try {
+            // 查询缓存，如果缓存中存在，直接返回
+            //1.1 构建业务数据Key 形式：前缀+业务唯一标识
+            String dataKey = "product:sku:" + skuId;
+            // 1.2 从Redis中查询业务数据
+            ProductSku productSku = (ProductSku) redisTemplate.opsForValue().get(dataKey);
+//        if(null != productSku) {
+            if (redisTemplate.hasKey(dataKey)) {
+                // 如果缓存中存在业务数据，直接返回，不必从数据库中查询
+                log.info("命中缓存，直接返回，线程ID：{}，线程名称：{}", Thread.currentThread().getId(), Thread.currentThread().getName());
+                return productSku;
+            }
+            // 如果在缓存中没有查到数据，直接从数据库中查询数据，然后放到缓存当中
+            // 从数据库中查询数据，需要上分布式锁
+            String lockVal = UUID.randomUUID().toString().replace("-", "");
+            String lockKey = "product:lock" + skuId;
+            // 尝试获取锁
+            Boolean flag = redisTemplate.opsForValue().setIfAbsent(lockKey, lockVal, 3, TimeUnit.SECONDS);
+            if (flag) {
+                try {
+                    // 获取到锁，查询数据，放到缓存当中
+                    log.info("从数据库中查询数据");
+                    ProductSku productSkuBySkuId = getProductSkuBySkuId(skuId);
+                    redisTemplate.opsForValue().set(dataKey, productSkuBySkuId);
+                    return productSkuBySkuId;
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                } finally {
+                    // 使用Lua脚本查询和删除锁，避免删除了别人的锁
+                    String LuaScript = """
+                            if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end
+                            """;
+                    RedisScript<Boolean> redisScript = RedisScript.of(LuaScript, Boolean.class);
+                    List<String> list = Arrays.asList(lockKey); // 通过key来获取value
+                    redisTemplate.execute(redisScript, list, lockVal);
+                }
+            } else { // 自旋
+                // 如果没有获取到锁，就睡觉等待锁(
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                return getProductSku(skuId);
+            }
+        } catch (Exception e) {
+            //兜底处理方案：Redis服务有问题，将业务数据获取自动从数据库获取
+            log.error("[商品服务]查询商品信息异常：{}", e);
+            return getProductSkuBySkuId(skuId);
+        }
+    }
+
+    public ProductSku getProductSkuBySkuId(Long skuId) {
         return productSkuMapper.selectById(skuId);
     }
 
@@ -298,4 +394,16 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         }).toList();
     }
 
+    @Override
+    public String checkAndSubStock(Long skuId, Integer skuNum) {
+        int count = skuStockMapper.checkAndSubStock(skuId, skuNum);
+        if (count == 0) { // 更新语句没有执行,库存不足
+            // 查询商品名称
+            ProductSku productSku = productSkuMapper.selectOne(new LambdaQueryWrapper<ProductSku>().eq(ProductSku::getId, skuId));
+            // 查询商品的库存
+            SkuStock skuStock = skuStockMapper.selectOne(new LambdaQueryWrapper<SkuStock>().eq(SkuStock::getSkuId, skuId));
+            return productSku.getSkuName() + "库存不足,库存只有" + skuStock.getAvailableNum() + "个,您购买你的数量是" + skuNum + "个";
+        }
+        return "";
+    }
 }

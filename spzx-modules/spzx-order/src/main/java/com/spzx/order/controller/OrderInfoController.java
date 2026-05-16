@@ -14,6 +14,7 @@ import com.spzx.common.security.annotation.RequiresPermissions;
 import com.spzx.order.api.domain.OrderInfo;
 import com.spzx.order.domain.vo.OrderForm;
 import com.spzx.order.domain.vo.TradeVo;
+import com.spzx.order.receiver.OrderReceiver;
 import com.spzx.order.service.IOrderInfoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -30,6 +31,44 @@ import java.util.List;
 public class OrderInfoController extends BaseController {
     @Autowired
     private IOrderInfoService orderInfoService;
+
+    @Operation(summary = "获取我的订单信息")
+    @GetMapping("/userOrderInfoList/{pageNum}/{pageSize}")
+    public TableDataInfo myOrderInfoList(Integer orderStatus) {
+        // 开启分页
+        startPage();
+        List<OrderInfo> orderInfoList = orderInfoService.myOrderInfoList(orderStatus);
+        return getDataTable(orderInfoList);
+    }
+
+    @Operation(summary = "获取订单信息")
+    @GetMapping("/getOrderInfo/{orderId}")
+    public AjaxResult getOrderInfo(@PathVariable("orderId") Long orderId) {
+        AjaxResult info = getInfo(orderId);
+        return info;
+    }
+
+    @Operation(summary = "提交订单")
+    @PostMapping("/submitOrder")
+    public AjaxResult submitOrder(@RequestBody OrderForm orderForm) {
+        // 先生成订单表，返回订单的Id，再更新订单项表
+        Long orderId = orderInfoService.submitOrder(orderForm);
+        return success(orderId);
+    }
+
+    @Operation(summary = "去结算")
+    @GetMapping("/trade")
+    public AjaxResult trade(){
+        TradeVo tradeVo = orderInfoService.trade();
+        return success(tradeVo);
+    }
+
+    @Operation(summary = "直接购买某一件商品")
+    @GetMapping("/buy/{skuId}")
+    public AjaxResult buy(@PathVariable("skuId") Long skuId){
+        TradeVo tradeVo = orderInfoService.buy(skuId);
+        return success(tradeVo);
+    }
 
     /**
      * 查询订单列表
@@ -65,7 +104,5 @@ public class OrderInfoController extends BaseController {
     public AjaxResult getInfo(@PathVariable("id") Long id) {
         return success(orderInfoService.selectOrderInfoById(id));
     }
-
-
 
 }

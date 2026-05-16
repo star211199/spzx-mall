@@ -16,8 +16,7 @@ import io.minio.PutObjectArgs;
  * @author spzx
  */
 @Service("minioSysFileService")
-public class MinioSysFileServiceImpl implements ISysFileService
-{
+public class MinioSysFileServiceImpl implements ISysFileService {
     @Autowired
     private MinioConfig minioConfig;
 

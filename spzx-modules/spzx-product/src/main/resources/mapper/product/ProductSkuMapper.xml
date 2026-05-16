@@ -25,10 +25,10 @@
                sku.del_flag,
                ss.sale_num
         from product_sku sku
-                 left join product p
-                           on sku.product_id = p.id and p.audit_status = 0 and p.status = 0 and p.del_flag = '0'
-                 left join sku_stock ss on sku.id = ss.sku_id and ss.del_flag = '0'
-        where sku.del_flag = 0
+                 inner join product p
+                            on sku.product_id = p.id
+                 inner join sku_stock ss on sku.id = ss.sku_id and ss.del_flag = '0'
+        where sku.del_flag = 0 and p.audit_status = 1 and p.status = 1 and p.del_flag = '0'
         order by ss.sale_num desc
         limit 0,20
     </select>

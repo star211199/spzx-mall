@@ -212,7 +212,7 @@ function reset() {
 }
 
 
-const beforeUpload = (rawFile) => {
+/*const beforeUpload = (rawFile) => {
   if (rawFile.type !== 'image/jpeg') {
     ElMessage.error('图片必须是JPG格式!')
     return false
@@ -221,7 +221,23 @@ const beforeUpload = (rawFile) => {
     return false
   }
   return true
-}
+}*/
+const beforeUpload = (rawFile) => {
+  // 允许的图片类型：jpg、jpeg、png
+  const allowedTypes = ['image/jpeg', 'image/png'];
+
+  // 判断文件格式是否在允许范围内
+  if (!allowedTypes.includes(rawFile.type)) {
+    ElMessage.error('图片必须是 JPG / PNG 格式!');
+    return false;
+  }
+  // 判断文件大小不超过 1MB
+  else if (rawFile.size / 1024 / 1024 > 1) {
+    ElMessage.error('图片不能大于 1MB!');
+    return false;
+  }
+  return true;
+};
 
 
 //上传图片成功后进行回调处理
