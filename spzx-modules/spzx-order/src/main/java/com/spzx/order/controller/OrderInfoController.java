@@ -32,9 +32,16 @@ public class OrderInfoController extends BaseController {
     @Autowired
     private IOrderInfoService orderInfoService;
 
+    @Operation(summary = "取消订单")
+    @GetMapping("/cancelOrder/{orderId}")
+    public AjaxResult cancelOrder(@PathVariable Long orderId) {
+        orderInfoService.cancelOrder(orderId);
+        return success();
+    }
+
     @Operation(summary = "获取我的订单信息")
     @GetMapping("/userOrderInfoList/{pageNum}/{pageSize}")
-    public TableDataInfo myOrderInfoList(Integer orderStatus) {
+    public TableDataInfo myOrderInfoList(String orderStatus) {
         // 开启分页
         startPage();
         List<OrderInfo> orderInfoList = orderInfoService.myOrderInfoList(orderStatus);
@@ -44,8 +51,8 @@ public class OrderInfoController extends BaseController {
     @Operation(summary = "获取订单信息")
     @GetMapping("/getOrderInfo/{orderId}")
     public AjaxResult getOrderInfo(@PathVariable("orderId") Long orderId) {
-        AjaxResult info = getInfo(orderId);
-        return info;
+        OrderInfo byId = orderInfoService.getById(orderId);
+        return success(byId);
     }
 
     @Operation(summary = "提交订单")

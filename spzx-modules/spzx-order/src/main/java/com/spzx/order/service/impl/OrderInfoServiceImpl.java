@@ -332,14 +332,14 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     }
 
     @Override
-    public List<OrderInfo> myOrderInfoList(Integer orderStatus) {
+    public List<OrderInfo> myOrderInfoList(String orderStatus) {
 
         // 先根据Id查出该用户的所有订单，然后再根据订单状态查询
         Long userId = SecurityContextHolder.getUserId();
         // 创建List<OrderInfo>
         List<OrderInfo> orderInfoList = new ArrayList<>();
 
-        /*// 创建查询条件
+        // 创建查询条件
         LambdaQueryWrapper<OrderInfo> orderInfoQueryWrapper = new LambdaQueryWrapper<>();
         orderInfoQueryWrapper.eq(OrderInfo::getUserId, userId);
         // 判断orderStatus是否为空
@@ -354,10 +354,20 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             orderItemQueryWrapper.eq(OrderItem::getOrderId, orderInfoId);
             orderItemList = orderItemMapper.selectList(orderItemQueryWrapper);
             orderInfo.setOrderItemList(orderItemList);
-        });*/
+        });
         // 使用自定义的SQL语句查询数据
-        orderInfoList = orderInfoMapper.selectOrderInfoListByUserId(userId, orderStatus);
+        //orderInfoList = orderInfoMapper.selectOrderInfoListByUserId(userId, orderStatus);
 
         return orderInfoList;
+    }
+
+    @Override
+    public void cancelOrder(Long orderId) {
+        // 更新点单状态
+        OrderInfo orderInfo = new OrderInfo();
+        orderInfo.setId(orderId);
+        // 设置订单状态
+        orderInfo.setOrderStatus(-1);
+        orderInfoMapper.updateById(orderInfo);
     }
 }

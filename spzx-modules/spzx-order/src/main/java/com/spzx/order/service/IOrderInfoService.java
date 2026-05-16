@@ -31,5 +31,7 @@ public interface IOrderInfoService extends IService<OrderInfo> {
 
     Long submitOrder(OrderForm orderForm);
 
-    List<OrderInfo> myOrderInfoList(Integer orderStatus);
+    List<OrderInfo> myOrderInfoList(String orderStatus);
+
+    void cancelOrder(Long orderId);
 }
