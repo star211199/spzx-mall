@@ -33,6 +33,13 @@ public class OrderInfoController extends BaseController {
     @Autowired
     private IOrderInfoService orderInfoService;
 
+    @Operation(summary = "供远程微服务内部调用根据订单号查询订单信息的方法")
+    @GetMapping("/getOrderInfoByOrderNo/{orderNo}")
+    public R<OrderInfo> getOrderInfoByOrderNo(@PathVariable String orderNo) {
+        OrderInfo orderInfo = orderInfoService.getOrderInfoByOrderNo(orderNo);
+        return R.ok(orderInfo);
+    }
+
     @Operation(summary = "取消订单")
     @GetMapping("/cancelOrder/{orderId}")
     public AjaxResult cancelOrder(@PathVariable Long orderId) {

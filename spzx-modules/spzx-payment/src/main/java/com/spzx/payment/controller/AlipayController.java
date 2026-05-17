@@ -13,10 +13,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -30,5 +27,12 @@ public class AlipayController extends BaseController {
 
     @Autowired
     private IPaymentInfoService paymentInfoService;
+
+    @Operation(summary = "调用支付宝获取打开支付宝表单的方法")
+    @GetMapping("/submitAlipay/{orderNo}")
+    public AjaxResult submitAlipay(@PathVariable("orderNo") String orderNo) {
+        String form = alipayService.submitAlipay(orderNo);
+        return success(form);
+    }
 
 }

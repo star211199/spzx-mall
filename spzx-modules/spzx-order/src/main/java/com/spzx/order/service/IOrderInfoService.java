@@ -34,4 +34,6 @@ public interface IOrderInfoService extends IService<OrderInfo> {
     List<OrderInfo> myOrderInfoList(String orderStatus);
 
     void cancelOrder(Long orderId,Integer flag);
+
+    OrderInfo getOrderInfoByOrderNo(String orderNo);
 }

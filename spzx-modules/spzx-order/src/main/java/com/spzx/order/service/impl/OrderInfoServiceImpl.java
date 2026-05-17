@@ -390,4 +390,15 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             orderLogMapper.insert(orderLog);
         }
     }
+
+    @Override
+    public OrderInfo getOrderInfoByOrderNo(String orderNo) {
+        // 先通过订单号查询的订单的信息
+        OrderInfo orderInfo = orderInfoMapper.selectOne(new LambdaQueryWrapper<OrderInfo>().eq(OrderInfo::getOrderNo, orderNo));
+        // 同意订单Id查询对应的订单项
+        List<OrderItem> orderItemList = orderItemMapper.selectList(new LambdaQueryWrapper<OrderItem>().eq(OrderItem::getOrderId, orderInfo.getId()));
+        orderInfo.setOrderItemList(orderItemList);
+
+        return orderInfo;
+    }
 }

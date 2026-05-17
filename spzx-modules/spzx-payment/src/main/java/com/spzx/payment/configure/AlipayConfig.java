@@ -33,7 +33,7 @@ public class AlipayConfig {
     public static  String alipay_public_key;
 
     @Value("${alipay.alipay_public_key}")
-    public   void setAlipay_public_key(String alipay_public_key) {
+    public  void setAlipay_public_key(String alipay_public_key) {
         AlipayConfig.alipay_public_key = alipay_public_key;
     }
 
@@ -47,10 +47,10 @@ public class AlipayConfig {
         AlipayConfig.notify_payment_url = notify_payment_url;
     }
 
-    @Value("${alipay.return_order_url}")
-    public   void setReturn_order_url(String return_order_url) {
-        AlipayConfig.return_order_url = return_order_url;
-    }
+//    @Value("${alipay.return_order_url}")
+//    public   void setReturn_order_url(String return_order_url) {
+//        AlipayConfig.return_order_url = return_order_url;
+//    }
 
     @Bean
     public AlipayClient alipayClient(){
