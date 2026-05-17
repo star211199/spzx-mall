@@ -1,6 +1,7 @@
 package com.spzx.order.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.PageHelper;
 import com.spzx.cart.api.RemoteCartService;
@@ -374,18 +375,19 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         String cancelReason = flag == 1 ? "用户取消订单" : "系统取消订单";
         orderInfo.setCancelReason(cancelReason);
 
-        // 设置订单状态
+        // 设置订单状态,当订单状态为0时才设置，避免重复，使用条件的更新方法
         orderInfo.setOrderStatus(-1);
-        orderInfoMapper.updateById(orderInfo);
-
-        // 取消订单的同时，插入订单日志
-        OrderLog orderLog = new OrderLog();
-        orderLog.setOrderId(orderId);
-        orderLog.setCreateBy(SecurityContextHolder.getUserName());
-        orderLog.setOperateUser(flag == 1 ? "用户" : "系统");
-        orderLog.setNote(cancelReason);
-        orderLog.setProcessStatus(-1);
-        orderLogMapper.insert(orderLog);
-
+        int count = orderInfoMapper.update(orderInfo, new LambdaUpdateWrapper<OrderInfo>().eq(OrderInfo::getId, orderId)
+                .eq(OrderInfo::getOrderStatus, 0));
+        if (count == 1) { // 如果成功更新状态才将日志插入
+            // 取消订单的同时，插入订单日志
+            OrderLog orderLog = new OrderLog();
+            orderLog.setOrderId(orderId);
+            orderLog.setCreateBy(SecurityContextHolder.getUserName());
+            orderLog.setOperateUser(flag == 1 ? "用户" : "系统");
+            orderLog.setNote(cancelReason);
+            orderLog.setProcessStatus(-1);
+            orderLogMapper.insert(orderLog);
+        }
     }
 }
