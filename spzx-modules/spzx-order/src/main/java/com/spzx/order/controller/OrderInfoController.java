@@ -19,6 +19,7 @@ import com.spzx.order.service.IOrderInfoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -35,15 +36,15 @@ public class OrderInfoController extends BaseController {
     @Operation(summary = "取消订单")
     @GetMapping("/cancelOrder/{orderId}")
     public AjaxResult cancelOrder(@PathVariable Long orderId) {
-        orderInfoService.cancelOrder(orderId);
+        orderInfoService.cancelOrder(orderId,1);
         return success();
     }
 
     @Operation(summary = "获取我的订单信息")
     @GetMapping("/userOrderInfoList/{pageNum}/{pageSize}")
-    public TableDataInfo myOrderInfoList(String orderStatus) {
+    public TableDataInfo myOrderInfoList(@PathVariable Integer pageNum, @PathVariable Integer pageSize, String orderStatus) {
         // 开启分页
-        startPage();
+        PageHelper.startPage(pageNum, pageSize);
         List<OrderInfo> orderInfoList = orderInfoService.myOrderInfoList(orderStatus);
         return getDataTable(orderInfoList);
     }

@@ -11,6 +11,8 @@ import com.spzx.common.core.domain.R;
 import com.spzx.common.core.exception.ServiceException;
 import com.spzx.common.core.utils.StringUtils;
 import com.spzx.common.core.web.domain.AjaxResult;
+import com.spzx.common.rabbit.config.RabbitInitConfigApplicationListener;
+import com.spzx.common.rabbit.constant.MqConst;
 import com.spzx.common.rabbit.service.RabbitService;
 import com.spzx.order.api.domain.OrderInfo;
 import com.spzx.order.api.domain.OrderItem;
@@ -203,7 +205,6 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         }
 
 
-
         // 2.插入订单表
         OrderInfo orderInfo = new OrderInfo();
         // 表单提交的数据
@@ -250,7 +251,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             // TODO:校验库存和减库存
             R<String> stringR = remoteProductService.checkAndSubStock(orderItem.getSkuId(), orderItem.getSkuNum(), SecurityConstants.INNER);
             if (R.FAIL == stringR.getCode()) {
-                throw  new ServiceException("远程调用校验库存和减库存微服务失败");
+                throw new ServiceException("远程调用校验库存和减库存微服务失败");
             }
             // 获取失败的数据
             String msg = stringR.getData();
@@ -326,7 +327,8 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         // TODO:清空购物车
         remoteCartService.clearCheckedCartInfo(SecurityConstants.INNER);
 
-        // TODO:发送一条延迟消息，30分钟订单未支付自动取消订单
+        // TODO:发送一条延迟消息，30分钟订单未支付自动取消订单（测试阶段使用30s）
+        rabbitService.sendDelayMessage(MqConst.EXCHANGE_CANCEL_ORDER, MqConst.ROUTING_CANCEL_ORDER, orderId);
 
         return orderId;
     }
@@ -343,7 +345,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         LambdaQueryWrapper<OrderInfo> orderInfoQueryWrapper = new LambdaQueryWrapper<>();
         orderInfoQueryWrapper.eq(OrderInfo::getUserId, userId);
         // 判断orderStatus是否为空
-        orderInfoQueryWrapper.eq(StringUtils.hasText(orderStatus),OrderInfo::getOrderStatus, orderStatus);
+        orderInfoQueryWrapper.eq(StringUtils.hasText(orderStatus), OrderInfo::getOrderStatus, orderStatus);
         orderInfoList = orderInfoMapper.selectList(orderInfoQueryWrapper);
         // 遍历查询订单项
         orderInfoList.forEach(orderInfo -> {
@@ -362,12 +364,28 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     }
 
     @Override
-    public void cancelOrder(Long orderId) {
+    public void cancelOrder(Long orderId, Integer flag) {
         // 更新点单状态
         OrderInfo orderInfo = new OrderInfo();
         orderInfo.setId(orderId);
+
+        orderInfo.setCancelTime(new Date());
+        // 设置取消的原因
+        String cancelReason = flag == 1 ? "用户取消订单" : "系统取消订单";
+        orderInfo.setCancelReason(cancelReason);
+
         // 设置订单状态
         orderInfo.setOrderStatus(-1);
         orderInfoMapper.updateById(orderInfo);
+
+        // 取消订单的同时，插入订单日志
+        OrderLog orderLog = new OrderLog();
+        orderLog.setOrderId(orderId);
+        orderLog.setCreateBy(SecurityContextHolder.getUserName());
+        orderLog.setOperateUser(flag == 1 ? "用户" : "系统");
+        orderLog.setNote(cancelReason);
+        orderLog.setProcessStatus(-1);
+        orderLogMapper.insert(orderLog);
+
     }
 }
