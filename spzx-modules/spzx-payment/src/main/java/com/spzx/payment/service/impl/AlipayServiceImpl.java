@@ -2,12 +2,12 @@ package com.spzx.payment.service.impl;
 
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
-import com.alipay.api.domain.AlipayTradeWapPayModel;
-import com.alipay.api.domain.ExtUserInfo;
-import com.alipay.api.domain.ExtendParams;
-import com.alipay.api.domain.GoodsDetail;
+import com.alipay.api.domain.*;
 import com.alipay.api.request.AlipayTradeWapPayRequest;
 import com.alipay.api.response.AlipayTradeWapPayResponse;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.spzx.common.rabbit.constant.MqConst;
+import com.spzx.common.rabbit.service.RabbitService;
 import com.spzx.payment.configure.AlipayConfig;
 import com.spzx.payment.domain.PaymentInfo;
 import com.spzx.payment.service.IAlipayService;
@@ -16,7 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class AlipayServiceImpl implements IAlipayService {
@@ -26,6 +28,8 @@ public class AlipayServiceImpl implements IAlipayService {
 
     @Autowired
     IPaymentInfoService paymentInfoService;
+    @Autowired
+    private RabbitService rabbitService;
 
     @Override
     public String submitAlipay(String orderNo) {
@@ -75,5 +79,28 @@ public class AlipayServiceImpl implements IAlipayService {
             throw new RuntimeException(e);
         }
         return "";
+    }
+
+    @Override
+    public void updatePaymentStatus(Map<String, String> params) {
+        // 获取订单号
+        String orderNo = params.get("out_trade_no");
+        // 需要更新的内容
+        PaymentInfo paymentInfo = new PaymentInfo();
+        // 更新交易编号
+        String tradeNo = params.get("trade_no");
+        paymentInfo.setTradeNo(tradeNo);
+        // 更新交易状态
+        paymentInfo.setPaymentStatus("1");
+        // 更新时间
+        paymentInfo.setCallbackTime(new Date());
+        paymentInfo.setCallbackContent(params.toString());
+        paymentInfo.setUpdateTime(new Date());
+
+        // 带条件的更新
+        paymentInfoService.update(paymentInfo,new LambdaUpdateWrapper<PaymentInfo>().eq(PaymentInfo::getOrderNo, orderNo));
+
+        //TODO:更新订单的状态，①同步更新，直接调用方法更新；②异步更新：使用消息队列
+//        rabbitService.sendMessage(MqConst.EXCHANGE_PAYMENT_PAY,MqConst.ROUTING_PAYMENT_PAY,orderNo);
     }
 }

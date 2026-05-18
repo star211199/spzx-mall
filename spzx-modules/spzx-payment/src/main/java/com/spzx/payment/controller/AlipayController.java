@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @Slf4j
-@Controller
+@RestController
 @RequestMapping("/alipay")
 public class AlipayController extends BaseController {
 
@@ -33,6 +33,30 @@ public class AlipayController extends BaseController {
     public AjaxResult submitAlipay(@PathVariable("orderNo") String orderNo) {
         String form = alipayService.submitAlipay(orderNo);
         return success(form);
+    }
+
+    @Operation(summary = "支付宝回调通知支付结构的方法")
+    @PostMapping("/callback/notify")
+    public String notify(@RequestParam Map<String, String> params) {
+        System.out.println("params = " + params);
+        try {
+            // 验签
+            boolean flag = AlipaySignature.rsaCheckV1(params, AlipayConfig.alipay_public_key, AlipayConfig.charset,AlipayConfig.sign_type);
+            if (flag) {
+                // 判断交易是否成功
+                String status = params.get("trade_status");
+                // 如果验签成功，更新payment_info
+                if ("TRADE_SUCCESS".equals(status) || "TRADE_FINISHED".equals(status)) {
+                    alipayService.updatePaymentStatus(params);
+                    System.out.println("success");
+                    return "success";
+                }
+            }
+
+        } catch (AlipayApiException e) {
+            throw new RuntimeException(e);
+        }
+        return "fail";
     }
 
 }

@@ -11,6 +11,7 @@ import com.spzx.order.mapper.OrderInfoMapper;
 import com.spzx.order.service.IOrderInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -20,6 +21,8 @@ import javax.naming.Name;
 import java.io.IOException;
 import java.security.Key;
 import java.security.MessageDigest;
+import java.util.Date;
+import java.util.Set;
 
 @Slf4j
 @Component
@@ -36,7 +39,7 @@ public class OrderReceiver {
                     type = "x-delayed-type",
                     arguments = @Argument(name = "x-delayed-type",value = "direct")),
             key = MqConst.ROUTING_CANCEL_ORDER))
-    public void receiverMessage(Long orderId,Message message, Channel channel){
+    public void receiverMessageCancelOrder(Long orderId,Message message, Channel channel){
 
         // 获取消息的标识
         long deliveryTag = message.getMessageProperties().getDeliveryTag();
@@ -57,6 +60,30 @@ public class OrderReceiver {
             }
             throw new RuntimeException(e);
         }
-
     }
+
+    /*@RabbitListener(bindings = @QueueBinding(value = @Queue(value = MqConst.QUEUE_PAYMENT_PAY),
+                    exchange = @Exchange(value = MqConst.EXCHANGE_PAYMENT_PAY),
+                    key = MqConst.ROUTING_PAYMENT_PAY))
+    public void receiverMessageUpdateOrder(String OrderNo ,Message message, Channel channel){
+        long deliveryTag = message.getMessageProperties().getDeliveryTag();
+        try {
+            // 根据orderNo更新订单表状态
+            orderInfoService.update(new LambdaUpdateWrapper<OrderInfo>()
+                    .set(OrderInfo::getUpdateTime,new Date())
+                    .set(OrderInfo::getOrderStatus,1)
+                    .eq(OrderInfo::getOrderNo, OrderNo)
+            );
+            // 成功确认消息
+            channel.basicAck(deliveryTag,false);
+        } catch (IOException e) {
+            try {
+                // 消息消费失败，回退
+                channel.basicNack(deliveryTag,false,true);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+            throw new RuntimeException(e);
+        }
+    }*/
 }
