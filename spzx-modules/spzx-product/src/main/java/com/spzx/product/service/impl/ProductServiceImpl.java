@@ -11,6 +11,7 @@ import com.spzx.common.core.web.domain.BaseEntity;
 import com.spzx.product.api.domain.Product;
 import com.spzx.product.api.domain.ProductDetails;
 import com.spzx.product.api.domain.ProductSku;
+import com.spzx.product.api.domain.vo.SkuLockVo;
 import com.spzx.product.api.domain.vo.SkuPrice;
 import com.spzx.product.api.domain.vo.SkuQuery;
 import com.spzx.product.api.domain.vo.SkuStockVo;
@@ -405,5 +406,24 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
             return productSku.getSkuName() + "库存不足,库存只有" + skuStock.getAvailableNum() + "个,您购买你的数量是" + skuNum + "个";
         }
         return "";
+    }
+
+    @Override
+    public String addStockAndSubSaleNum(List<SkuLockVo> skuLockVoList) {
+        StringBuffer stringBuffer = new StringBuffer();
+        skuLockVoList.forEach(item -> {
+            // 获取skuId
+            Long skuId = item.getSkuId();
+            // 获取数量
+            Integer skuNum = item.getSkuNum();
+            // 在数据库中还原
+            int count = skuStockMapper.addStockAndSubSaleNum(skuId,skuNum);
+            if(count == 0){
+                // 根据SkuId获取sku信息
+                ProductSku productSku = productSkuMapper.selectById(skuId);
+                stringBuffer.append(productSku.getSkuName()+"库存和销量还原失败");
+            }
+        });
+        return stringBuffer.toString();
     }
 }

@@ -196,4 +196,12 @@ ProductController extends BaseController {
         String msg = productService.checkAndSubStock(skuId, skuNum);
         return R.ok(msg);
     }
+
+    @InnerAuth
+    @Operation(summary = "供远程微服务调用取消订单后还原库存和销量")
+    @PostMapping("/addStockAndSubSaleNum")
+    public R<String> addStockAndSubSaleNum(@RequestBody List<SkuLockVo> skuLockVoList){
+        String msg = productService.addStockAndSubSaleNum(skuLockVoList);
+        return R.ok(msg);
+    }
 }

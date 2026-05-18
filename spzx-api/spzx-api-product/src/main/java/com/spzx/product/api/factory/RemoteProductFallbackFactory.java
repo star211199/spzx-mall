@@ -83,6 +83,11 @@ public class RemoteProductFallbackFactory implements FallbackFactory<RemoteProdu
             public R<String> checkAndSubStock(Long skuId, Integer skuNum, String source) {
                 return R.fail("远程调用校验和减库存的微服务失败,失败的原因是:" + throwable.getMessage());
             }
+
+            @Override
+            public R<String> addStockAndSubSaleNum(List<SkuLockVo> skuLockVoList, String source) {
+                return R.fail("远程调用还原库存和销量的微服务失败,失败的原因是:" + throwable.getMessage());
+            }
         };
     }
 }

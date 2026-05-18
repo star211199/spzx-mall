@@ -102,5 +102,6 @@ public class AlipayServiceImpl implements IAlipayService {
 
         //TODO:更新订单的状态，①同步更新，直接调用方法更新；②异步更新：使用消息队列
 //        rabbitService.sendMessage(MqConst.EXCHANGE_PAYMENT_PAY,MqConst.ROUTING_PAYMENT_PAY,orderNo);
+
     }
 }

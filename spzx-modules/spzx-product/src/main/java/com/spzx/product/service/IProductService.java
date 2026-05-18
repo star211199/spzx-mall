@@ -100,4 +100,6 @@ public interface IProductService extends IService<Product> {
     public List<SkuPrice> getSkuPriceList(List<Long> skuIdList);
 
     String checkAndSubStock(Long skuId, Integer skuNum);
+
+    String addStockAndSubSaleNum(List<SkuLockVo> skuLockVoList);
 }

@@ -27,6 +27,7 @@ import com.spzx.order.service.IOrderInfoService;
 import com.spzx.order.service.IOrderItemService;
 import com.spzx.product.api.RemoteProductService;
 import com.spzx.product.api.domain.ProductSku;
+import com.spzx.product.api.domain.vo.SkuLockVo;
 import com.spzx.user.api.RemoteUserAddressService;
 import com.spzx.user.domain.UserAddress;
 import io.lettuce.core.OrderingReadFromAccessor;
@@ -389,6 +390,27 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             orderLog.setProcessStatus(-1);
             orderLogMapper.insert(orderLog);
         }
+        // TODO:取消订单后还原库存和销量
+        // 根据orderId获取orderItem信息
+        List<OrderItem> orderItemList = orderItemService.list(new LambdaQueryWrapper<OrderItem>().eq(OrderItem::getOrderId, orderId));
+        // 将orderItemList --> skuLockVoList
+        List<SkuLockVo> skuLockVoList = orderItemList.stream().map(orderItem -> {
+            SkuLockVo skuLockVo = new SkuLockVo();
+            skuLockVo.setSkuId(orderItem.getSkuId());
+            skuLockVo.setSkuNum(orderItem.getSkuNum());
+            return skuLockVo;
+        }).collect(Collectors.toList());
+        // 远程调用微服务处理
+        R<String> stringR = remoteProductService.addStockAndSubSaleNum(skuLockVoList, SecurityConstants.INNER);
+        if (R.FAIL == stringR.getCode()) {
+            throw new ServiceException("远程调用还原库存和销量的微服务失败");
+        }
+        String data = stringR.getData();
+        if (StringUtils.hasText(data)) {
+            throw new ServiceException(data);
+        }
+
+
     }
 
     @Override

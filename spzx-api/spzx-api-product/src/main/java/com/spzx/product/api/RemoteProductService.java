@@ -75,4 +75,10 @@ public interface RemoteProductService {
      */
     @GetMapping("/product/checkAndSubStock/{skuId}/{skuNum}")
     R<String> checkAndSubStock(@PathVariable("skuId") Long skuId,@PathVariable("skuNum") Integer skuNum, @RequestHeader(SecurityConstants.FROM_SOURCE) String source);
+
+    /**
+     * 还原库存和销量
+     */
+    @PostMapping("/product/addStockAndSubSaleNum")
+    R<String> addStockAndSubSaleNum(@RequestBody List<SkuLockVo> skuLockVoList, @RequestHeader(SecurityConstants.FROM_SOURCE) String source);
 }

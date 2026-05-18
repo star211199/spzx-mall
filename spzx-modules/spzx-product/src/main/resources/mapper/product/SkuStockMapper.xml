@@ -39,12 +39,23 @@
           and del_flag = '0'
     </update>
 
+    <!--  校验和减库存  -->
     <update id="checkAndSubStock">
         update sku_stock
         set total_num = total_num - #{skuNum},
             available_num = available_num - #{skuNum},
             sale_num = sale_num + #{skuNum}
         where sku_id = #{skuId} and available_num - #{skuNum} >= 0
+          and del_flag = '0'
+    </update>
+
+    <!--  还原库存和销量  -->
+    <update id="addStockAndSubSaleNum">
+        update sku_stock
+        set total_num = total_num + #{skuNum},
+            available_num = available_num + #{skuNum},
+            sale_num = sale_num - #{skuNum}
+        where sku_id = #{skuId}
           and del_flag = '0'
     </update>
 
