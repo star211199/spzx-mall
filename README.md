@@ -1,131 +1,331 @@
 <p align="center">
-	<img alt="logo" src="https://oscimg.oschina.net/oscnet/up-b99b286755aef70355a7084753f89cdb7c9.png">
+    <img alt="spzx-logo" src="https://oscimg.oschina.net/oscnet/up-b99b286755aef70355a7084753f89cdb7c9.png" width="160">
 </p>
-<h1 align="center" style="margin: 30px 0 30px; font-weight: bold;">RuoYi v3.6.3</h1>
-<h4 align="center">基于 Vue/Element UI 和 Spring Boot/Spring Cloud & Alibaba 前后端分离的分布式微服务架构</h4>
+<h1 align="center" style="margin: 20px 0 10px; font-weight: bold;">好物甄选商城 spzx</h1>
+<h4 align="center">基于 Spring Boot 3 / Spring Cloud Alibaba 的电商微服务系统 · 商品甄选实战项目</h4>
 <p align="center">
-	<a href="https://gitee.com/y_project/RuoYi-Cloud/stargazers"><img src="https://gitee.com/y_project/RuoYi-Cloud/badge/star.svg?theme=dark"></a>
-	<a href="https://gitee.com/y_project/RuoYi-Cloud"><img src="https://img.shields.io/badge/RuoYi-v3.6.3-brightgreen.svg"></a>
-	<a href="https://gitee.com/y_project/RuoYi-Cloud/blob/master/LICENSE"><img src="https://img.shields.io/github/license/mashape/apistatus.svg"></a>
+    <a href="#"><img src="https://img.shields.io/badge/Spring%20Boot-3.0.5-brightgreen.svg"></a>
+    <a href="#"><img src="https://img.shields.io/badge/Spring%20Cloud-2022.0.2-blue.svg"></a>
+    <a href="#"><img src="https://img.shields.io/badge/Spring%20Cloud%20Alibaba-2022.0.0.0--RC2-orange.svg"></a>
+    <a href="#"><img src="https://img.shields.io/badge/Java-17-yellow.svg"></a>
+    <a href="#"><img src="https://img.shields.io/badge/Vue-3.3.9-4FC08D.svg"></a>
+    <a href="#"><img src="https://img.shields.io/badge/Element%20Plus-2.4.3-409EFF.svg"></a>
+    <a href="#"><img src="https://img.shields.io/badge/License-MIT-blue.svg"></a>
 </p>
 
-## 平台简介
 
-若依是一套全部开源的快速开发平台，毫无保留给个人及企业免费使用。
+> 基于 [RuoYi-Cloud](https://gitee.com/y_project/RuoYi-Cloud) v3.6.3 深度二次开发的电商全链路微服务系统，覆盖 **商品管理 → 商城渠道 → 购物车 → 订单 → 支付宝支付 → 会员中心** 完整交易闭环，前端采用 Vue 3 技术栈，是学习电商分布式架构的完整实战项目。
 
-* 采用前后端分离的模式，微服务版本前端(基于 [RuoYi-Vue](https://gitee.com/y_project/RuoYi-Vue))。
-* 后端采用Spring Boot、Spring Cloud & Alibaba。
-* 注册中心、配置中心选型Nacos，权限认证使用Redis。
-* 流量控制框架选型Sentinel，分布式事务选型Seata。
-* 提供了技术栈（[Vue3](https://v3.cn.vuejs.org) [Element Plus](https://element-plus.org/zh-CN) [Vite](https://cn.vitejs.dev)）版本[RuoYi-Cloud-Vue3](https://github.com/yangzongzhuan/RuoYi-Cloud-Vue3)，保持同步更新。
-* 如需不分离应用，请移步 [RuoYi](https://gitee.com/y_project/RuoYi)，如需分离应用，请移步 [RuoYi-Vue](https://gitee.com/y_project/RuoYi-Vue)
-* 阿里云折扣场：[点我进入](http://aly.spzx.vip)，腾讯云秒杀场：[点我进入](http://txy.spzx.vip)&nbsp;&nbsp;
-* 阿里云优惠券：[点我领取](https://www.aliyun.com/minisite/goods?userCode=brki8iof&share_source=copy_link)，腾讯云优惠券：[点我领取](https://cloud.tencent.com/redirect.php?redirect=1025&cps_key=198c8df2ed259157187173bc7f4f32fd&from=console)&nbsp;&nbsp;
+<div align="center">
+    <strong>⭐ 如果这个项目对你有帮助，欢迎 Star / Fork / 交流学习 ⭐</strong>
+</div>
 
-#### 友情链接 [若依/RuoYi-Cloud](https://gitee.com/zhangmrit/spzx-cloud) Ant Design版本。
+---
 
-## 系统模块
+## 📑 目录
 
-~~~
-com.spzx     
-├── spzx-ui              // 前端框架 [80]
-├── spzx-gateway         // 网关模块 [8080]
-├── spzx-auth            // 认证中心 [9200]
-├── spzx-api             // 接口模块
-│       └── spzx-api-system                          // 系统接口
-├── spzx-common          // 通用模块
-│       └── spzx-common-core                         // 核心模块
-│       └── spzx-common-datascope                    // 权限范围
-│       └── spzx-common-datasource                   // 多数据源
-│       └── spzx-common-log                          // 日志记录
-│       └── spzx-common-redis                        // 缓存服务
-│       └── spzx-common-seata                        // 分布式事务
-│       └── spzx-common-security                     // 安全模块
-│       └── spzx-common-swagger                      // 系统接口
-├── spzx-modules         // 业务模块
-│       └── spzx-system                              // 系统模块 [9201]
-│       └── spzx-gen                                 // 代码生成 [9202]
-│       └── spzx-job                                 // 定时任务 [9203]
-│       └── spzx-file                                // 文件服务 [9300]
-├── spzx-visual          // 图形化管理模块
-│       └── spzx-visual-monitor                      // 监控中心 [9100]
-├──pom.xml                // 公共依赖
-~~~
+- [项目介绍](#-项目介绍)
+- [技术栈](#-技术栈)
+- [系统架构](#-系统架构)
+- [模块说明](#-模块说明)
+- [核心功能](#-核心功能)
+- [技术亮点](#-技术亮点)
+- [快速开始](#-快速开始)
+- [Docker 部署](#-docker-部署)
+- [目录结构](#-目录结构)
+- [常见问题](#-常见问题)
+- [License](#-license)
 
-## 架构图
+---
 
-<img src="https://oscimg.oschina.net/oscnet/up-82e9722ecb846786405a904bafcf19f73f3.png"/>
+## 🚀 项目介绍
 
-## 内置功能
+尚品甄选商城（spzx）是一套面向电商场景的前后端分离微服务系统，具备**商城前台 + 运营后台**双端能力：
 
-1.  用户管理：用户是系统操作者，该功能主要完成系统用户配置。
-2.  部门管理：配置系统组织机构（公司、部门、小组），树结构展现支持数据权限。
-3.  岗位管理：配置系统用户所属担任职务。
-4.  菜单管理：配置系统菜单，操作权限，按钮权限标识等。
-5.  角色管理：角色菜单权限分配、设置角色按机构进行数据范围权限划分。
-6.  字典管理：对系统中经常使用的一些较为固定的数据进行维护。
-7.  参数管理：对系统动态配置常用参数。
-8.  通知公告：系统通知公告信息发布维护。
-9.  操作日志：系统正常操作日志记录和查询；系统异常信息日志记录和查询。
-10. 登录日志：系统登录日志记录查询包含登录异常。
-11. 在线用户：当前系统中活跃用户状态监控。
-12. 定时任务：在线（添加、修改、删除)任务调度包含执行结果日志。
-13. 代码生成：前后端代码的生成（java、html、xml、sql）支持CRUD下载 。
-14. 系统接口：根据业务代码自动生成相关的api接口文档。
-15. 服务监控：监视当前系统CPU、内存、磁盘、堆栈等相关信息。
-16. 在线构建器：拖动表单元素生成相应的HTML代码。
-17. 连接池监视：监视当前系统数据库连接池状态，可进行分析SQL找出系统性能瓶颈。
+- **商城前台（H5/渠道端）**：首页、商品列表、商品详情、品牌分类浏览、购物车、下单结算、支付宝支付、会员注册登录、收货地址管理等 C 端完整购物流程；
+- **运营后台（管理端）**：基于若依 RBAC 权限体系，提供商品管理（分类 / 品牌 / 规格 / 单位 / SPU-SKU）、订单管理、会员管理、代码生成、定时任务、系统监控等 B 端运营能力。
 
-## 在线体验
+项目以交易链路为骨架，将复杂业务拆分为独立微服务，通过 Nacos 注册发现、Gateway 统一网关、Feign 声明式调用、RabbitMQ 异步解耦，完整呈现了**真实电商系统的微服务落地方式**。
 
-- admin/admin123  
-- 陆陆续续收到一些打赏，为了更好的体验已用于演示服务器升级。谢谢各位小伙伴。
+---
 
-演示地址：http://spzx.vip  
-文档地址：http://doc.spzx.vip
+## 🛠 技术栈
 
-## 演示图
+| 分类 | 技术选型 |
+| --- | --- |
+| 后端框架 | Spring Boot 3.0.5 · Spring Cloud 2022.0.2 · Spring Cloud Alibaba 2022.0.0.0-RC2 |
+| JDK | Java 17 |
+| 注册 / 配置中心 | Nacos |
+| 网关 | Spring Cloud Gateway（响应式） |
+| 认证授权 | 自研 JWT + Redis Token 体系（后台 & H5 双端） |
+| 流量控制 | Sentinel（网关流控 + Nacos 持久化） |
+| 分布式事务 | Seata |
+| ORM | MyBatis-Plus 3.5.3.1 · PageHelper 分页 · Druid 连接池 · 多数据源 |
+| 消息队列 | RabbitMQ（Confirm 可靠性投递 + 延迟消息 + 消费去重） |
+| 缓存 | Redis（Session/Token/购物车/商品缓存） |
+| 文件存储 | MinIO · FastDFS · 本地磁盘 |
+| 支付 | 支付宝 alipay-sdk-java |
+| 接口文档 | Knife4j (OpenAPI 3) |
+| 代码生成 | Velocity 模板 + Gen 模块 |
+| 前端 | Vue 3.3.9 · Element Plus 2.4.3 · Vite 5 · Pinia · Vue Router 4 · ECharts · Axios |
+| 部署 | Docker Compose · Nginx · Spring Boot Admin 监控 |
 
-<table>
-    <tr>
-        <td><img src="https://oscimg.oschina.net/oscnet/cd1f90be5f2684f4560c9519c0f2a232ee8.jpg"/></td>
-        <td><img src="https://oscimg.oschina.net/oscnet/1cbcf0e6f257c7d3a063c0e3f2ff989e4b3.jpg"/></td>
-    </tr>
-    <tr>
-        <td><img src="https://oscimg.oschina.net/oscnet/up-8074972883b5ba0622e13246738ebba237a.png"/></td>
-        <td><img src="https://oscimg.oschina.net/oscnet/up-9f88719cdfca9af2e58b352a20e23d43b12.png"/></td>
-    </tr>
-    <tr>
-        <td><img src="https://oscimg.oschina.net/oscnet/up-39bf2584ec3a529b0d5a3b70d15c9b37646.png"/></td>
-        <td><img src="https://oscimg.oschina.net/oscnet/up-4148b24f58660a9dc347761e4cf6162f28f.png"/></td>
-    </tr>
-	<tr>
-        <td><img src="https://oscimg.oschina.net/oscnet/up-b2d62ceb95d2dd9b3fbe157bb70d26001e9.png"/></td>
-        <td><img src="https://oscimg.oschina.net/oscnet/up-d67451d308b7a79ad6819723396f7c3d77a.png"/></td>
-    </tr>	 
-    <tr>
-        <td><img src="https://oscimg.oschina.net/oscnet/5e8c387724954459291aafd5eb52b456f53.jpg"/></td>
-        <td><img src="https://oscimg.oschina.net/oscnet/644e78da53c2e92a95dfda4f76e6d117c4b.jpg"/></td>
-    </tr>
-	<tr>
-        <td><img src="https://oscimg.oschina.net/oscnet/up-8370a0d02977eebf6dbf854c8450293c937.png"/></td>
-        <td><img src="https://oscimg.oschina.net/oscnet/up-49003ed83f60f633e7153609a53a2b644f7.png"/></td>
-    </tr>
-	<tr>
-        <td><img src="https://oscimg.oschina.net/oscnet/up-d4fe726319ece268d4746602c39cffc0621.png"/></td>
-        <td><img src="https://oscimg.oschina.net/oscnet/up-c195234bbcd30be6927f037a6755e6ab69c.png"/></td>
-    </tr>
-	<tr>
-        <td><img src="https://oscimg.oschina.net/oscnet/up-ece3fd37a3d4bb75a3926e905a3c5629055.png"/></td>
-        <td><img src="https://oscimg.oschina.net/oscnet/up-92ffb7f3835855cff100fa0f754a6be0d99.png"/></td>
-    </tr>
-    <tr>
-        <td><img src="https://oscimg.oschina.net/oscnet/up-ff9e3066561574aca73005c5730c6a41f15.png"/></td>
-        <td><img src="https://oscimg.oschina.net/oscnet/up-5e4daac0bb59612c5038448acbcef235e3a.png"/></td>
-    </tr>
-</table>
+---
 
+## 🏗 系统架构
 
-## 若依微服务交流群
+```
+                         ┌─────────────────────────────────────────────┐
+                         │              Nginx (80)                     │
+                         │   静态资源 spzx-ui · 反向代理 /prod-api      │
+                         └───────────────────┬─────────────────────────┘
+                                             │
+                         ┌───────────────────▼─────────────────────────┐
+                         │        spzx-gateway 网关 (8080)             │
+                         │   认证拦截 · 验证码 · XSS · 黑名单 · 限流     │
+                         └───────┬──────────┬──────────┬───────────────┘
+                                 │          │          │
+                 ┌───────────────▼──┐   ┌───▼───────────────┐
+                 │   spzx-auth      │   │  业务微服务集群     │
+                 │   认证中心 (9200) │   │  Feign 声明式调用   │
+                 └───────────────┬──┘   └───┬───────────────┘
+                                 │          │
+                        ┌────────▼──────────▼───────────────┐
+                        │        Nacos 注册 & 配置中心       │
+                        │   Redis · MySQL · RabbitMQ · Seata  │
+                        └────────────────────────────────────┘
+```
 
-QQ群： [![加入QQ群](https://img.shields.io/badge/已满-42799195-blue.svg)](https://jq.qq.com/?_wv=1027&k=yqInfq0S) [![加入QQ群](https://img.shields.io/badge/已满-170157040-blue.svg)](https://jq.qq.com/?_wv=1027&k=Oy1mb3p8) [![加入QQ群](https://img.shields.io/badge/已满-130643120-blue.svg)](https://jq.qq.com/?_wv=1027&k=rvxkJtXK) [![加入QQ群](https://img.shields.io/badge/已满-225920371-blue.svg)](https://jq.qq.com/?_wv=1027&k=0Ck3PvTe) [![加入QQ群](https://img.shields.io/badge/已满-201705537-blue.svg)](https://jq.qq.com/?_wv=1027&k=FnHHP4TT) [![加入QQ群](https://img.shields.io/badge/已满-236543183-blue.svg)](https://jq.qq.com/?_wv=1027&k=qdT1Ojpz) [![加入QQ群](https://img.shields.io/badge/已满-213618602-blue.svg)](https://jq.qq.com/?_wv=1027&k=nw3OiyXs) [![加入QQ群](https://img.shields.io/badge/已满-148794840-blue.svg)](https://jq.qq.com/?_wv=1027&k=kiU5WDls) [![加入QQ群](https://img.shields.io/badge/已满-118752664-blue.svg)](https://jq.qq.com/?_wv=1027&k=MtBy6YfT) [![加入QQ群](https://img.shields.io/badge/已满-101038945-blue.svg)](https://jq.qq.com/?_wv=1027&k=FqImHgH2) [![加入QQ群](https://img.shields.io/badge/128355254-blue.svg)](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=G4jZ4EtdT50PhnMBudTnEwgonxkXOscJ&authKey=FkGHYfoTKlGE6wHdKdjH9bVoOgQjtLP9WM%2Fj7pqGY1msoqw9uxDiBo39E2mLgzYg&noverify=0&group_code=128355254) 点击按钮入群。
+**核心调用链路（下单支付）**：
+
+```
+商品详情 ──Redis 缓存──▶ 购物车(spzx-cart) ──▶ 订单(spzx-order)
+     │                                              │
+     │                                    锁定库存(spzx-product)
+     │                                              │
+     └────────────▶ 支付宝支付(spzx-payment) ◀──────┘
+                           │
+                     MQ 支付成功通知 ──▶ 扣减库存 · 更新订单状态
+                     MQ 延迟消息(30min) ─▶ 超时未支付自动取消 · 解锁库存
+```
+
+---
+
+## 📦 模块说明
+
+```
+com.spzx
+├── spzx-ui                    // 前端工程（Vue3 + Element Plus）[80]
+├── spzx-gateway               // 网关模块：统一鉴权/限流/XSS/验证码 [8080]
+├── spzx-auth                  // 认证中心：后台 & H5 双端登录 [9200]
+├── spzx-api                   // 接口模块（Feign 客户端 + 降级工厂）
+│   ├── spzx-api-system        //   系统接口
+│   ├── spzx-api-product       //   商品接口
+│   ├── spzx-api-order         //   订单接口
+│   ├── spzx-api-cart          //   购物车接口
+│   └── spzx-api-user          //   会员接口
+├── spzx-common                // 通用模块
+│   ├── spzx-common-core       //   核心模块（统一返回/异常/工具类）
+│   ├── spzx-common-security   //   安全认证（JWT / 权限）
+│   ├── spzx-common-redis      //   缓存服务
+│   ├── spzx-common-rabbit     //   MQ 消息服务（可靠性投递）
+│   ├── spzx-common-log        //   日志记录
+│   ├── spzx-common-datascope  //   数据权限
+│   ├── spzx-common-datasource //   多数据源
+│   └── spzx-common-seata      //   分布式事务
+├── spzx-modules               // 业务模块
+│   ├── spzx-system            //   系统管理（用户/角色/菜单/字典...）[9201]
+│   ├── spzx-gen               //   代码生成 [9202]
+│   ├── spzx-job               //   定时任务 [9203]
+│   ├── spzx-file              //   文件服务（MinIO/FastDFS）[9300]
+│   ├── spzx-product           //   商品管理（分类/品牌/规格/SPU-SKU/库存）[9205]
+│   ├── spzx-user              //   会员中心（注册登录/地址/区域/短信）[9206]
+│   ├── spzx-order             //   订单（下单/取消/库存还原）[9207]
+│   ├── spzx-channel           //   商城渠道（首页/列表/详情/品牌）[9208]
+│   ├── spzx-cart              //   购物车（Redis）[9209]
+│   └── spzx-payment           //   支付宝支付 [9210]
+└── spzx-visual                // 图形化管理
+    └── spzx-visual-monitor    //   监控中心（Spring Boot Admin）[9100]
+```
+
+---
+
+## ✨ 核心功能
+
+### 🛒 商城端（C 端）
+
+| 功能 | 说明 |
+| --- | --- |
+| 首页 | 远程聚合分类、品牌等多模块数据构建首页 |
+| 商品列表 | 按分类 / 品牌 / 关键字检索，分页展示 |
+| 商品详情 | SPU-SKU 规格联动、价格库存展示（Redis 缓存） |
+| 品牌 / 分类 | 一级二级分类树展示与筛选 |
+| 购物车 | Redis 存储，商品增删改查、数量调整、价格汇总 |
+| 订单 | 确认订单（购物车快照）→ 提交订单 → 锁定库存 |
+| 支付 | 支付宝 PC 网页支付，异步回调更新状态 |
+| 会员 | 手机号 / 用户名注册登录、个人信息、收货地址管理 |
+| 定时取消 | 提交订单 30 分钟未支付自动取消，解锁库存、还原销量 |
+
+### 🧑‍💼 运营后台（B 端）
+
+| 功能 | 说明 |
+| --- | --- |
+| 用户管理 | 系统用户配置、角色分配 |
+| 部门 / 岗位 | 组织机构树、职务配置 |
+| 菜单管理 | 菜单 / 目录 / 按钮权限标识配置 |
+| 角色管理 | 角色菜单权限、数据范围权限分配 |
+| 字典 / 参数 | 固定数据维护、动态参数配置 |
+| 通知公告 | 系统公告发布维护 |
+| 日志 | 操作日志、登录日志、在线用户监控 |
+| 定时任务 | 在线任务调度 + 执行日志 |
+| 商品管理 | 商品分类 / 品牌 / 分类品牌关联 / 商品规格 / 单位 / SPU-SKU 上架 |
+| 订单管理 | 订单列表查询、订单流程跟踪 |
+| 代码生成 | 前后端代码（java/xml/vue/sql）一键生成下载 |
+| 系统监控 | CPU / 内存 / 磁盘 / 堆栈监控，连接池分析 |
+| 服务监控 | Spring Boot Admin 健康检查 |
+
+---
+
+## 🎯 技术亮点
+
+1. **消息可靠性投递**：RabbitMQ Confirm 模式 + 消息回退 + 消费端去重，解决重复消费问题（订单 / 支付 / 库存场景）；
+2. **分布式库存管理**：下单锁定库存 → 支付成功 MQ 通知扣减库存 → 取消订单解锁库存并还原销量，全程异步解耦；
+3. **延迟消息取消订单**：RabbitMQ 延迟插件实现订单超时自动取消（默认 30 分钟）；
+4. **双端认证体系**：后台管理端 + H5 商城端两套登录链路，统一基于 Redis 的 Token 服务；
+5. **商品缓存预热**：`CommandLineRunner` 在商品服务启动时将 SKU 加载至 Redis，加速详情读取；
+6. **Feign 降级工厂**：所有远程调用均提供 `FallbackFactory`，服务不可用时优雅降级；
+7. **网关统一防护**：认证过滤器、验证码、XSS 过滤、黑名单 URL、Sentinel 流控一体化；
+8. **多源文件存储**：MinIO / FastDFS / 本地三种存储策略可切换。
+
+---
+
+## 🚀 快速开始
+
+### 环境要求
+
+| 依赖 | 版本 |
+| --- | --- |
+| JDK | 17 |
+| Maven | 3.6+ |
+| Node.js | 16+ |
+| Nacos | 2.x（standalone） |
+| MySQL | 5.7 / 8.0 |
+| Redis | 5+ |
+| RabbitMQ | 3.x（含延迟消息插件） |
+
+### 第一步：启动基础中间件（Docker）
+
+```bash
+cd docker
+# 首次构建并后台启动 nacos / mysql / redis / nginx / 各业务服务
+docker-compose up -d
+```
+
+> 或在本地手动启动 Nacos（默认 `192.168.6.100:8848`，可在各服务 `bootstrap.yml` 中修改地址）、MySQL（初始化 `ry-cloud` 数据库及脚本）、Redis、RabbitMQ。
+
+### 第二步：启动后端服务
+
+按依赖顺序依次启动（IDEA 中运行 `main` 方法）：
+
+```text
+1. spzx-gateway     →  Nacos  → 网关 [8080]
+2. spzx-auth        →  认证中心 [9200]
+3. spzx-system      →  系统管理 [9201]
+4. spzx-product     →  商品管理 [9205]
+5. spzx-user        →  会员中心 [9206]
+6. spzx-order       →  订单 [9207]
+7. spzx-channel     →  商城渠道 [9208]
+8. spzx-cart        →  购物车 [9209]
+9. spzx-payment     →  支付 [9210]
+10. spzx-file       →  文件服务 [9300]
+11. spzx-job        →  定时任务（可选）[9203]
+12. spzx-gen        →  代码生成（可选）[9202]
+```
+
+Windows 下也可使用 `bin/` 目录脚本：
+
+```bat
+bin\package.bat          :: 一键打包全部微服务
+bin\run-gateway.bat      :: 启动网关
+bin\run-modules-system.bat
+bin\run-auth.bat
+```
+
+### 第三步：启动前端
+
+```bash
+cd spzx-ui
+npm install          # 或 yarn
+npm run dev          # 默认端口 80，/dev-api 代理至 http://localhost:8080
+```
+
+浏览器访问：http://localhost （默认账号请联系管理员 / 见演示环境）
+
+### 第四步：生成代码（可选）
+
+访问后台「系统工具 → 代码生成」，选择数据库表后一键生成前后端代码并下载。
+
+---
+
+## 🐳 Docker 部署
+
+`docker/docker-compose.yml` 中已编排全部组件：
+
+| 服务 | 端口 | 说明 |
+| --- | --- | --- |
+| spzx-nacos | 8848 / 9848 / 9849 | 注册配置中心（standalone） |
+| spzx-mysql | 3306 | MySQL 5.7（utf8mb4，库 `ry-cloud`） |
+| spzx-redis | 6379 | Redis |
+| spzx-gateway | 8080 | 网关 |
+| spzx-auth | 9200 | 认证中心 |
+| spzx-modules-system | 9201 | 系统服务 |
+| spzx-modules-gen | 9202 | 代码生成 |
+| spzx-modules-job | 9203 | 定时任务 |
+| spzx-modules-file | 9300 | 文件服务 |
+| spzx-visual-monitor | 9100 | 监控中心 |
+| spzx-nginx | 80 | 前端静态资源 + 反向代理 |
+
+```bash
+cd docker
+./deploy.sh          # 打包 jar + 构建镜像 + 启动
+```
+
+---
+
+## 📁 目录结构
+
+```
+spzx/
+├── spzx-ui/                 # 前端（Vue3 + Vite）
+├── spzx-gateway/            # 网关
+├── spzx-auth/               # 认证中心
+├── spzx-api/                # Feign 接口模块
+├── spzx-common/             # 通用模块
+├── spzx-modules/            # 业务模块
+├── spzx-visual/             # 监控
+├── docker/                  # 容器化部署（compose/nginx/nacos/mysql/redis）
+├── bin/                     # Windows 一键启动脚本
+├── pom.xml                  # 父工程（Spring Cloud Alibaba 版本管理）
+└── LICENSE                  # MIT License
+```
+
+---
+
+## ❓ 常见问题
+
+**Q1：启动时无法连接 Nacos？**
+A：Nacos 地址在各服务 `src/main/resources/bootstrap.yml` 的 `spring.cloud.nacos.server-addr` 配置（默认 `192.168.6.100:8848`），修改为本机地址即可。
+
+**Q2：RabbitMQ 延迟消息不可用？**
+A：确认已安装 `rabbitmq_delayed_message_exchange` 插件，并重启 RabbitMQ。
+
+**Q3：前端代理 404？**
+A：确认后端网关已启动且 `spzx-ui/vite.config.js` 中 `/dev-api` 代理目标为网关地址 `http://localhost:8080`。
+
+---
+
+## 📄 License
+
+本项目基于 [MIT License](./LICENSE) 开源，可免费用于个人学习与商业项目。
+
+> 二次开发基于 [RuoYi-Cloud](https://gitee.com/y_project/RuoYi-Cloud)（MIT License），感谢若依开源框架。
