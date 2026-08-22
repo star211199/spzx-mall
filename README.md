@@ -1,7 +1,7 @@
 <p align="center">
     <img alt="spzx-logo" src="https://oscimg.oschina.net/oscnet/up-b99b286755aef70355a7084753f89cdb7c9.png" width="160">
 </p>
-<h1 align="center" style="margin: 20px 0 10px; font-weight: bold;">好物甄选商城 spzx</h1>
+<h1 align="center" style="margin: 20px 0 10px; font-weight: bold;">好物甄选商城</h1>
 <h4 align="center">基于 Spring Boot 3 / Spring Cloud Alibaba 的电商微服务系统 · 商品甄选实战项目</h4>
 <p align="center">
     <a href="#"><img src="https://img.shields.io/badge/Spring%20Boot-3.0.5-brightgreen.svg"></a>
