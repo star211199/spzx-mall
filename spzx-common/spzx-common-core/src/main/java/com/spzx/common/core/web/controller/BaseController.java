@@ -33,11 +33,9 @@ public class BaseController {
     @InitBinder
     public void initBinder(WebDataBinder binder) {
         // Date 类型转换
-        binder.registerCustomEditor(Date.class, new PropertyEditorSupport()
-        {
+        binder.registerCustomEditor(Date.class, new PropertyEditorSupport() {
             @Override
-            public void setAsText(String text)
-            {
+            public void setAsText(String text) {
                 setValue(DateUtils.parseDate(text));
             }
         });
@@ -46,23 +44,21 @@ public class BaseController {
     /**
      * 设置请求分页数据
      */
-    protected void startPage()
-    {
+    protected void startPage() {
         PageUtils.startPage();
     }
 
     /**
      * 清理分页的线程变量
      */
-    protected void clearPage()
-    {
+    protected void clearPage() {
         PageUtils.clearPage();
     }
 
     /**
      * 响应请求分页数据
      */
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     protected TableDataInfo getDataTable(List<?> list) //  com.github.pagehelper.Page extends ArrayList
     {
         TableDataInfo rspData = new TableDataInfo();
@@ -77,9 +73,8 @@ public class BaseController {
     /**
      * 响应请求分页数据
      */
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    protected TableDataInfo getDataTable(IPage page)
-    {
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    protected TableDataInfo getDataTable(IPage page) {
         TableDataInfo rspData = new TableDataInfo();
         rspData.setCode(HttpStatus.SUCCESS);
         rspData.setRows(page.getRecords());
@@ -91,48 +86,42 @@ public class BaseController {
     /**
      * 返回成功
      */
-    public AjaxResult success()
-    {
+    public AjaxResult success() {
         return AjaxResult.success();
     }
 
     /**
      * 返回成功消息
      */
-    public AjaxResult success(String message)
-    {
+    public AjaxResult success(String message) {
         return AjaxResult.success(message);
     }
 
     /**
      * 返回成功消息
      */
-    public AjaxResult success(Object data)
-    {
+    public AjaxResult success(Object data) {
         return AjaxResult.success(data);
     }
 
     /**
      * 返回失败消息
      */
-    public AjaxResult error()
-    {
+    public AjaxResult error() {
         return AjaxResult.error();
     }
 
     /**
      * 返回失败消息
      */
-    public AjaxResult error(String message)
-    {
+    public AjaxResult error(String message) {
         return AjaxResult.error(message);
     }
 
     /**
      * 返回警告消息
      */
-    public AjaxResult warn(String message)
-    {
+    public AjaxResult warn(String message) {
         return AjaxResult.warn(message);
     }
 
@@ -142,8 +131,7 @@ public class BaseController {
      * @param rows 影响行数
      * @return 操作结果
      */
-    protected AjaxResult toAjax(int rows)
-    {
+    protected AjaxResult toAjax(int rows) {
         return rows > 0 ? AjaxResult.success() : AjaxResult.error();
     }
 
@@ -153,8 +141,7 @@ public class BaseController {
      * @param result 结果
      * @return 操作结果
      */
-    protected AjaxResult toAjax(boolean result)
-    {
+    protected AjaxResult toAjax(boolean result) {
         return result ? success() : error();
     }
 }

@@ -38,6 +38,7 @@
             type="success"
             plain
             icon="Edit"
+            :disabled="single"
             @click="handleUpdate"
         >修改
         </el-button>
@@ -47,6 +48,7 @@
             type="danger"
             plain
             icon="Delete"
+            :disabled="multiple"
             @click="handleDelete"
         >删除
         </el-button>
@@ -273,11 +275,15 @@ const specValue = ref({key: '', values: ''})
 const specValueList = ref([])
 
 function addSpecValue() {
+  if (!specValue.value.key || !specValue.value.values) {
+    proxy.$modal.msgError("请填写规格名和规格值");
+    return
+  }
   specValueList.value.push({
     key: specValue.value.key,
     valueList: specValue.value.values.split(','),
   })
-  specValue.value = {}
+  specValue.value = {key: '', values: ''}
   isAdd.value = false
 }
 
@@ -352,7 +358,6 @@ function cancel() {
 
 // 多选框选中数据
 function handleSelectionChange(selection) {
-  debugger
   ids.value = selection.map(item => item.id);
   single.value = selection.length != 1;
   multiple.value = !selection.length;

@@ -353,7 +353,7 @@ const data = reactive({
       Authorization: "Bearer " + getToken()
     },
     // 图片上传的方法地址:
-    url: "http://localhost/dev-api/file/upload"
+    url: import.meta.env.VITE_APP_BASE_API + "/file/upload"
   }
 });
 
@@ -366,7 +366,7 @@ function getList() {
   listProduct(queryParams.value).then(response => {
     productList.value = response.rows;
     productList.value.forEach(item => {
-      item.sliderUrlList = item.sliderUrls.split(',')
+      item.sliderUrlList = item.sliderUrls ? item.sliderUrls.split(',') : []
     })
     total.value = response.total;
     loading.value = false;
@@ -465,8 +465,6 @@ function handleAdd() {
   reset();
   open.value = true;
   title.value = "添加商品";
-  console.log(form.value)
-  debugger
 
   //清空
   activeIndex.value = 0
@@ -495,13 +493,13 @@ function handleUpdate(row) {
       form.value.category3Id,
     ]
     // //处理图片
-    form.value.sliderUrlList = form.value.sliderUrls.split(",")
+    form.value.sliderUrlList = (form.value.sliderUrls || '').split(",").filter(url => url)
     form.value.sliderUrlList.forEach(url => {
       sliderTempUrlList.value.push({ url: url })
     })
 
     //处理详情图片
-    form.value.detailsImageUrlList.forEach(url => {
+    ;(form.value.detailsImageUrlList || []).forEach(url => {
       detailsImageTempUrlList.value.push({ url: url })
     })
 
@@ -605,8 +603,7 @@ categoryProps.value = {
   async lazyLoad(node, resolve) {
     const { level } = node
     if (typeof node.value == 'undefined') node.value = 0
-    console.log('=========' + node.value)
-    const { code, data, message } = await getTreeSelect(
+    const { data } = await getTreeSelect(
         node.value
     )
     //hasChildren判断是否有子节点
@@ -626,12 +623,11 @@ const handleCategoryChange = () => {
     getCategoryBrand()
     getCategorySpec()
   }
-  console.log(categoryIdList.value)
 }
 //加载品牌
 const categoryBrandList = ref([])
 const getCategoryBrand = async () => {
-  if (form.value.category3Id == '') {
+  if (!form.value.category3Id) {
     proxy.$modal.msgError("请选择分类");
     return
   }
@@ -650,16 +646,16 @@ getUnitAllList()
 // 上传商品轮播图图片
 const sliderTempUrlList = ref([])
 const handleRemove = (uploadFile, uploadFiles) => {
-  console.log(uploadFile, uploadFiles)
-  form.value.sliderUrlList.splice(form.value.sliderUrlList.indexOf(uploadFile.url), 1)
-  console.log(form.value.sliderUrlList)
+  //新上传的文件 uploadFile.url 是 blob 预览地址，真实地址在上传响应里
+  const url = (uploadFile.response && uploadFile.response.data) ? uploadFile.response.data.url : uploadFile.url
+  const index = form.value.sliderUrlList.indexOf(url)
+  if (index > -1) {
+    form.value.sliderUrlList.splice(index, 1)
+  }
 }
 const handleSliderSuccess = (response, uploadFile) => {
   if(response.code == 200) {
     form.value.sliderUrlList.push(response.data.url)
-    console.log(form.value.sliderUrlList)
-    console.log('--------------')
-    console.log(sliderTempUrlList.value)
   } else {
     proxy.$modal.msgError(response.msg);
   }
@@ -667,15 +663,13 @@ const handleSliderSuccess = (response, uploadFile) => {
 
 //sku图片
 const handleSkuSuccess = (response, uploadFile, fileList, row) => {
-  console.log(response)
-  console.log(uploadFile)
   row.thumbImg = response.data.url
 }
 
 //加载商品规格
 const specList = ref([])
 const getCategorySpec = async () => {
-  if (form.value.category3Id == '') {
+  if (!form.value.category3Id) {
     proxy.$modal.msgError("请选择分类");
     return
   }
@@ -687,7 +681,6 @@ const getCategorySpec = async () => {
 const handleSpecValueChange = val => {
   form.value.productSkuList = []
   let specValueList = JSON.parse(form.value.specValue)
-  console.log(specValueList)
 
   // let array = [
   //   ['红色', '黑色', '白色'],
@@ -715,7 +708,6 @@ const handleSpecValueChange = val => {
       },
       [[]]
   )
-  console.log(result)
   result.forEach(function(item) {
     form.value.productSkuList.push({
       skuSpec: item.join(' + '),
@@ -728,17 +720,14 @@ const handleSpecValueChange = val => {
 // 上传商品详情图片
 const detailsImageTempUrlList = ref([])
 const handleDetailsRemove = (uploadFile, uploadFiles) => {
-  console.log(uploadFile, uploadFiles)
-  form.value.detailsImageUrlList.splice(
-      form.value.detailsImageUrlList.indexOf(uploadFile.url),
-      1
-  )
-  console.log(form.value.detailsImageUrlList)
+  const url = (uploadFile.response && uploadFile.response.data) ? uploadFile.response.data.url : uploadFile.url
+  const index = form.value.detailsImageUrlList.indexOf(url)
+  if (index > -1) {
+    form.value.detailsImageUrlList.splice(index, 1)
+  }
 }
 const handleDetailsSuccess = (response, uploadFile) => {
-  console.log(response)
   form.value.detailsImageUrlList.push(response.data.url)
-  console.log(form.value.detailsImageUrlList)
 }
 </script>
 <style>

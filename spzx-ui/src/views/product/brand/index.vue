@@ -120,7 +120,7 @@ import {addBrand, deleteBrand, getBrand, listBrand, updateBrand} from '@/api/pro
 //import * as brandApi from '@/api/product/brand.js'
 import {getToken} from '@/utils/auth'
 
-import {ElMessage, ElMessageBox} from 'element-plus'
+import {ElMessage} from 'element-plus'
 
 
 //=====================数据模型、变量 定义区域=====================
@@ -130,12 +130,12 @@ const { proxy } = getCurrentInstance();
 //定义分页列表数据模型
 const brandList = ref([]);
 //定义列表总记录数模型
-const total = ref(2);
+const total = ref(0);
 
 const data = reactive({
   queryParams: {
     pageNum: 1,
-    pageSize: 2,
+    pageSize: 10,
     name: ''
   },
   form: {
@@ -151,7 +151,7 @@ const data = reactive({
   },
   // 表单校验规则
   rules: {
-    name: [{ required: true, message: "品牌名称不能为空1111", trigger: "blur" }],
+    name: [{ required: true, message: "品牌名称不能为空", trigger: "blur" }],
     logo: [{ required: true, message: "品牌LOGO不能为空", trigger: "blur" }],
   }
 })
@@ -212,16 +212,6 @@ function reset() {
 }
 
 
-/*const beforeUpload = (rawFile) => {
-  if (rawFile.type !== 'image/jpeg') {
-    ElMessage.error('图片必须是JPG格式!')
-    return false
-  } else if (rawFile.size / 1024 / 1024 > 1) {
-    ElMessage.error('图片不能大于 1MB!')
-    return false
-  }
-  return true
-}*/
 const beforeUpload = (rawFile) => {
   // 允许的图片类型：jpg、jpeg、png
   const allowedTypes = ['image/jpeg', 'image/png'];
@@ -243,9 +233,6 @@ const beforeUpload = (rawFile) => {
 //上传图片成功后进行回调处理
 function handleAvatarSuccess(resultJson, uploadFile) {
   //{"code":200,"msg":null,"data":{"name":"p1_20240923114612A001.jpg","url":"http://192.168.6.121:9000/spzx/2024/09/23/p1_20240923114612A001.jpg"}}
-  console.log(resultJson)
-  console.log(uploadFile)  //  uploadFile.name
-
   form.value.logo = resultJson.data.url //将后端返回的图片地址赋值给数据模块(响应式的数据模型)
   proxy.$refs['brandRef'].clearValidate('logo')
 }
@@ -313,56 +300,12 @@ function handleDelete(row) {
   })
 }
 
-/*function handleDelete(row) {
-  ElMessageBox.confirm('您确定要删除吗?', '友情提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning'
-  }).then(() => { // 确定 执行 then回调处理
-    const _id = row.id || ids.value
-    return deleteBrand(_id)
-  }).then((resultJson) => {
-    ElMessage.success(resultJson.msg)
-    getList();
-  }).catch((e) => { // 取消执行  catch回调处理
-    if ('cancel' === e) {
-      ElMessage.info('取消删除')
-    } else {
-      ElMessage.error('请求失败')
-    }
-  })
-}*/
-
-/*function handleDelete(row){
-  ElMessageBox.confirm('您确定要删除吗?','友情提示',{
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type : 'warning'
-  }).then(()=>{ // 确定 执行 then回调处理
-    const _id = row.id
-    deleteBrand(_id).then(resultJson=>{
-      ElMessage.success(resultJson.msg)
-      getList();
-    })
-  }).catch((e)=>{ // 取消执行  catch回调处理
-    if('cancel'===e){
-      ElMessage.info('取消删除')
-    }else{
-      ElMessage.error('请求失败')
-    }
-  })
-}
- */
-
 
 function handleSelectionChange(selection) { // selection表示勾选的元素集合
   ids.value = selection.map(item => item.id)
-  console.log(ids.value)
   single.value = ids.value.length != 1
   multiple.value = ids.value.length == 0
 }
-
-
 </script>
 
 <style scoped>
@@ -395,24 +338,3 @@ function handleSelectionChange(selection) { // selection表示勾选的元素集
   text-align: center;
 }
 </style>
-
-
-// {
-//     "total": 6,
-//     "rows": [
-//     {
-//         "id": 13,
-//         "createBy": null,
-//         "createTime": "2024-09-20 09:45:01",
-//         "updateBy": null,
-//         "updateTime": null,
-//         "remark": null,
-//         "delFlag": null,
-//         "name": "联想",
-//         "logo": "123"
-//     },
-//
-//     ],
-//     "code": 200,
-//     "msg": "查询成功"
-// }

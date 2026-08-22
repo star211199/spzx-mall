@@ -9,10 +9,10 @@
           @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="${comment}" prop="name">
+      <el-form-item label="收货人" prop="name">
         <el-input
           v-model="queryParams.name"
-          placeholder="请输入${comment}"
+          placeholder="请输入收货人"
           clearable
           @keyup.enter="handleQuery"
         />
@@ -123,9 +123,9 @@
 
     <el-table v-loading="loading" :data="userAddressList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="${comment}" align="center" prop="id" />
+      <el-table-column label="ID" align="center" prop="id" />
       <el-table-column label="用户ID" align="center" prop="userId" />
-      <el-table-column label="${comment}" align="center" prop="name" />
+      <el-table-column label="收货人" align="center" prop="name" />
       <el-table-column label="电话" align="center" prop="phone" />
       <el-table-column label="标签名称" align="center" prop="tagName" />
       <el-table-column label="省code" align="center" prop="provinceCode" />
@@ -157,8 +157,8 @@
         <el-form-item label="用户ID" prop="userId">
           <el-input v-model="form.userId" placeholder="请输入用户ID" />
         </el-form-item>
-        <el-form-item label="${comment}" prop="name">
-          <el-input v-model="form.name" placeholder="请输入${comment}" />
+        <el-form-item label="收货人" prop="name">
+          <el-input v-model="form.name" placeholder="请输入收货人" />
         </el-form-item>
         <el-form-item label="电话" prop="phone">
           <el-input v-model="form.phone" placeholder="请输入电话" />
@@ -237,7 +237,7 @@ const data = reactive({
       { required: true, message: "用户ID不能为空", trigger: "blur" }
     ],
     name: [
-      { required: true, message: "$comment不能为空", trigger: "blur" }
+      { required: true, message: "收货人不能为空", trigger: "blur" }
     ],
     phone: [
       { required: true, message: "电话不能为空", trigger: "blur" }

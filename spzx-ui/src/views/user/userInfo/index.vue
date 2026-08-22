@@ -158,7 +158,7 @@
           >
             {{ scope.row.isDefault == 1 ? '是' : '否' }}
           </el-table-column>
-          <el-table-column prop="isDefault" label="详细详细" #default="scope">
+          <el-table-column prop="isDefault" label="详细信息" #default="scope">
             {{ scope.row.name }} | {{ scope.row.phone }} |
             {{ scope.row.fullAddress }}
           </el-table-column>

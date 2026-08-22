@@ -13,10 +13,8 @@ import com.spzx.common.security.annotation.EnableRyFeignClients;
 @EnableCustomConfig
 @EnableRyFeignClients
 @SpringBootApplication
-public class SpzxSystemApplication
-{
-    public static void main(String[] args)
-    {
+public class SpzxSystemApplication {
+    public static void main(String[] args) {
         SpringApplication.run(SpzxSystemApplication.class, args);
         System.out.println("(♥◠‿◠)ﾉﾞ  系统模块启动成功   ლ(´ڡ`ლ)ﾞ  \n" +
                 " .-------.       ____     __        \n" +

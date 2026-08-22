@@ -182,14 +182,14 @@ const categoryBrandList = ref([
 ])
 
 // 分页条数据模型
-const total = ref(2)
+const total = ref(0)
 
 //条件查询，临时存储三个级别分类id
 const queryCategoryIdList = ref([])
 const data = reactive({
   queryParams: {
     pageNum: 1,
-    pageSize: 2,
+    pageSize: 10,
     categoryId: null,
     brandId: null
   },

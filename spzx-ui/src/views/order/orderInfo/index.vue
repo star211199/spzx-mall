@@ -74,13 +74,13 @@
       <el-table-column prop="totalAmount" label="订单总额" width="80"/>
       <el-table-column prop="orderStatus" label="订单状态" #default="scope" width="80">
         {{
-          form.orderStatus == 0
+          scope.row.orderStatus == 0
               ? '待支付'
-              : form.orderStatus == 1
+              : scope.row.orderStatus == 1
                   ? '待发货'
-                  : form.orderStatus == 2
+                  : scope.row.orderStatus == 2
                       ? '已发货'
-                      : form.orderStatus == -1
+                      : scope.row.orderStatus == -1
                           ? '已取消'
                           : '完成'
         }}
@@ -303,7 +303,7 @@ function resetQuery() {
 }
 
 function handleShow(row) {
-  const _id = row.id || ids.value
+  const _id = row.id
   getInfo(_id).then(response => {
     form.value = response.data;
     open.value = true;
@@ -314,7 +314,7 @@ function handleShow(row) {
 /** 导出按钮操作 */
 function handleExport() {
   proxy.download('order/orderInfo/export', {
-    ...queryParams.value
+    ...proxy.addDateRange(queryParams.value, dateRange.value)
   }, `info_${new Date().getTime()}.xlsx`)
 }
 
