@@ -126,17 +126,22 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 
         Map<Long, Integer> skuIdToTatalNumMap = skuStockList.stream().collect(Collectors.toMap(SkuStock::getSkuId, SkuStock::getTotalNum));
         productSkuList.forEach(productSku -> {
-            //返回ProductSku对象，携带了库存数据；
-            productSku.setStockNum(skuIdToTatalNumMap.get(productSku.getId()));
+            //返回ProductSku对象，携带了库存数据
+            Integer stockNum = skuIdToTatalNumMap.get(productSku.getId());
+            productSku.setStockNum(stockNum != null ? stockNum : 0);
         });
 
         product.setProductSkuList(productSkuList);
 
         //3.封装扩展字段：商品详情图片List<String>
         ProductDetails productDetails = productDetailsMapper.selectOne(new LambdaQueryWrapper<ProductDetails>().eq(ProductDetails::getProductId, id));
-        String imageUrls = productDetails.getImageUrls();   //url,url,url
-        String[] urls = imageUrls.split(",");
-        product.setDetailsImageUrlList(Arrays.asList(urls));
+        if (productDetails == null || productDetails.getImageUrls() == null || productDetails.getImageUrls().isEmpty()) {
+            product.setDetailsImageUrlList(new ArrayList<>());
+        } else {
+            String imageUrls = productDetails.getImageUrls();
+            String[] urls = imageUrls.split(",");
+            product.setDetailsImageUrlList(Arrays.asList(urls));
+        }
         //返回Product对象
         return product;
     }
@@ -367,6 +372,9 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     @Override
     public SkuStockVo getSkuStock(Long skuId) {
         SkuStock skuStock = skuStockMapper.selectOne(new LambdaQueryWrapper<SkuStock>().eq(SkuStock::getSkuId, skuId));
+        if (skuStock == null) {
+            throw new ServiceException("SKU库存信息不存在，skuId: " + skuId);
+        }
         SkuStockVo skuStockVo = new SkuStockVo();
         BeanUtils.copyProperties(skuStock, skuStockVo);
         return skuStockVo;

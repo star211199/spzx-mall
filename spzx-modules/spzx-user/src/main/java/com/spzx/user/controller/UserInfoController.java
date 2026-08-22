@@ -75,9 +75,15 @@ public class UserInfoController extends BaseController {
     }
 
     @Operation(summary = "获取用户地址")
-    @RequiresPermissions("user:info:query")
+    @RequiresLogin
     @GetMapping("getUserAddress/{userId}")
     public AjaxResult getUserAddress(@PathVariable Long userId) {
+        // 水平权限验证：确保只能查看自己的收货地址
+        Long currentUserId = SecurityUtils.getUserId();
+        if (!userId.equals(currentUserId)) {
+            log.warn("用户尝试越权访问他人地址，userId: {}, targetUserId: {}", currentUserId, userId);
+            return AjaxResult.error("无权访问该用户地址");
+        }
         List<UserAddress> userAddressList = userInfoService.selectUserAddressList(userId);
         return success(userAddressList);
     }

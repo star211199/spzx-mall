@@ -33,6 +33,11 @@ public class OrderInfoController extends BaseController {
     @Autowired
     private IOrderInfoService orderInfoService;
 
+    /**
+     * 供远程微服务内部调用根据订单号查询订单信息的方法
+     * 该接口仅供内部服务调用，需要InnerAuth注解
+     */
+    @InnerAuth
     @Operation(summary = "供远程微服务内部调用根据订单号查询订单信息的方法")
     @GetMapping("/getOrderInfoByOrderNo/{orderNo}")
     public R<OrderInfo> getOrderInfoByOrderNo(@PathVariable String orderNo) {
@@ -40,13 +45,23 @@ public class OrderInfoController extends BaseController {
         return R.ok(orderInfo);
     }
 
+    /**
+     * 取消订单
+     * 需要登录后才能操作
+     */
+    @RequiresLogin
     @Operation(summary = "取消订单")
     @GetMapping("/cancelOrder/{orderId}")
     public AjaxResult cancelOrder(@PathVariable Long orderId) {
-        orderInfoService.cancelOrder(orderId,1);
+        orderInfoService.cancelOrder(orderId, 1);
         return success();
     }
 
+    /**
+     * 获取我的订单信息
+     * 需要登录后才能查看自己的订单
+     */
+    @RequiresLogin
     @Operation(summary = "获取我的订单信息")
     @GetMapping("/userOrderInfoList/{pageNum}/{pageSize}")
     public TableDataInfo myOrderInfoList(@PathVariable Integer pageNum, @PathVariable Integer pageSize, String orderStatus) {
@@ -56,6 +71,11 @@ public class OrderInfoController extends BaseController {
         return getDataTable(orderInfoList);
     }
 
+    /**
+     * 获取订单信息
+     * 需要登录，且只能查看自己的订单
+     */
+    @RequiresLogin
     @Operation(summary = "获取订单信息")
     @GetMapping("/getOrderInfo/{orderId}")
     public AjaxResult getOrderInfo(@PathVariable("orderId") Long orderId) {
@@ -63,6 +83,11 @@ public class OrderInfoController extends BaseController {
         return success(byId);
     }
 
+    /**
+     * 提交订单
+     * 需要登录才能下单
+     */
+    @RequiresLogin
     @Operation(summary = "提交订单")
     @PostMapping("/submitOrder")
     public AjaxResult submitOrder(@RequestBody OrderForm orderForm) {
@@ -71,6 +96,11 @@ public class OrderInfoController extends BaseController {
         return success(orderId);
     }
 
+    /**
+     * 去结算
+     * 需要登录才能操作
+     */
+    @RequiresLogin
     @Operation(summary = "去结算")
     @GetMapping("/trade")
     public AjaxResult trade(){

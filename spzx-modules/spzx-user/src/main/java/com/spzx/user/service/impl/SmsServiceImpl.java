@@ -1,52 +1,75 @@
 package com.spzx.user.service.impl;
 
+import com.spzx.common.core.exception.ServiceException;
 import com.spzx.common.core.utils.HttpUtils;
 import com.spzx.user.service.ISmsService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 短信服务实现类
+ * 注意：敏感配置请通过环境变量或配置文件注入，不要硬编码
+ */
+@Slf4j
 @Service
 public class SmsServiceImpl implements ISmsService {
 
+    @Value("${sms.host:https://gyyyx1.market.alicloudapi.com}")
+    private String smsHost;
+
+    @Value("${sms.path:/sms/smsSend}")
+    private String smsPath;
+
+    @Value("${sms.appcode:}")
+    private String smsAppcode;
+
+    @Value("${sms.signId:2e65b1bb3d054466b82f0c9d125465e2}")
+    private String smsSignId;
+
     @Override
     public void send(String phone, String templateId, Map<String, Object> param) {
-        String host = "https://gyyyx1.market.alicloudapi.com";
-        String path = "/sms/smsSend";
-        String method = "POST";
-        String appcode = "97c8ccac3fd5436a8e7ab5bbcc7c7498"; //购买短信服务，商家给用户分配的。可以设置appCode,获取AppKey：25620500     AppSecret：f0790fc1886f9fdcc81fe25d42988dc9
+        // 校验敏感配置
+        if (smsAppcode == null || smsAppcode.isEmpty()) {
+            log.error("短信服务配置异常：appcode未配置");
+            throw new ServiceException("短信服务配置异常，请联系管理员");
+        }
 
-        Map<String, String> headers = new HashMap<String, String>();
-        //最后在header中的格式(中间是英文空格)为Authorization:APPCODE 83359fd73fe94948385f570e3c139105
-        headers.put("Authorization", "APPCODE " + appcode);
+        if (phone == null || !phone.matches("^1[3-9]\\d{9}$")) {
+            log.warn("短信发送失败：手机号格式不正确 - {}", phone);
+            throw new ServiceException("手机号格式不正确");
+        }
 
-        Map<String, String> querys = new HashMap<String, String>();
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Authorization", "APPCODE " + smsAppcode);
+
+        Map<String, String> querys = new HashMap<>();
         querys.put("mobile", phone);
         querys.put("templateId", templateId);
-        querys.put("smsSignId", "2e65b1bb3d054466b82f0c9d125465e2");
-        querys.put("param", "**code**:"+param.get("code")+",**minute**:5");
+        querys.put("smsSignId", smsSignId);
+        querys.put("param", "**code**:" + param.get("code") + ",**minute**:5");
 
-        Map<String, String> bodys = new HashMap<String, String>();
-
+        Map<String, String> bodys = new HashMap<>();
 
         try {
-            /**
-             * 重要提示如下:
-             * HttpUtils请从
-             * https://github.com/aliyun/api-gateway-demo-sign-java/blob/master/src/main/java/com/aliyun/api/gateway/demo/util/HttpUtils.java
-             * 下载
-             *
-             * 相应的依赖请参照
-             * https://github.com/aliyun/api-gateway-demo-sign-java/blob/master/pom.xml
-             */
-            HttpResponse response = HttpUtils.doPost(host, path, method, headers, querys, bodys);
-            System.out.println("发送短信成功:"+response.toString());
-            //获取response的body
-            //System.out.println(EntityUtils.toString(response.getEntity()));
+            HttpResponse response = HttpUtils.doPost(smsHost, smsPath, "POST", headers, querys, bodys);
+            int statusCode = response.getStatusLine().getStatusCode();
+
+            if (statusCode == 200) {
+                log.info("短信发送成功，手机号：{}，模板ID：{}", phone, templateId);
+            } else {
+                log.error("短信发送失败，手机号：{}，状态码：{}", phone, statusCode);
+                throw new ServiceException("短信发送失败，请稍后重试");
+            }
+        } catch (ServiceException e) {
+            throw e;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("短信发送异常，手机号：{}", phone, e);
+            throw new ServiceException("短信发送异常，请稍后重试");
         }
     }
 }

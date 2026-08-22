@@ -187,11 +187,12 @@ ProductController extends BaseController {
     public R<SkuStockVo> getSkuStock(@PathVariable("skuId") Long skuId) {
         return R.ok(productService.getSkuStock(skuId));
     }
+
     //----详情 end------------------------------
     @InnerAuth
     @Operation(summary = "校验库存和减库存")
     @GetMapping("/checkAndSubStock/{skuId}/{skuNum}")
-    public R<String> checkAndSubStock(@PathVariable Long skuId,@PathVariable Integer skuNum) {
+    public R<String> checkAndSubStock(@PathVariable Long skuId, @PathVariable Integer skuNum) {
         // 调用checkAndSubStock中的方法校验和减库存
         String msg = productService.checkAndSubStock(skuId, skuNum);
         return R.ok(msg);
@@ -200,7 +201,7 @@ ProductController extends BaseController {
     @InnerAuth
     @Operation(summary = "供远程微服务调用取消订单后还原库存和销量")
     @PostMapping("/addStockAndSubSaleNum")
-    public R<String> addStockAndSubSaleNum(@RequestBody List<SkuLockVo> skuLockVoList){
+    public R<String> addStockAndSubSaleNum(@RequestBody List<SkuLockVo> skuLockVoList) {
         String msg = productService.addStockAndSubSaleNum(skuLockVoList);
         return R.ok(msg);
     }

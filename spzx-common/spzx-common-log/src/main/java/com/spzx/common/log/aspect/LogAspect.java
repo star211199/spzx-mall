@@ -114,9 +114,8 @@ public class LogAspect {
             // 保存数据库
             asyncLogService.saveSysLog(operLog);
         } catch (Exception exp) {
-            // 记录本地异常日志
-            log.error("异常信息:{}", exp.getMessage());
-            exp.printStackTrace();
+            // 记录本地异常日志，使用日志记录完整异常堆栈
+            log.error("日志记录异常", exp);
         } finally {
             TIME_THREADLOCAL.remove();
         }

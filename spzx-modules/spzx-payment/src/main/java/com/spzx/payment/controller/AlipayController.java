@@ -38,7 +38,7 @@ public class AlipayController extends BaseController {
     @Operation(summary = "支付宝回调通知支付结构的方法")
     @PostMapping("/callback/notify")
     public String notify(@RequestParam Map<String, String> params) {
-        System.out.println("params = " + params);
+        log.info("收到支付宝回调，参数：{}", params);
         try {
             // 验签
             boolean flag = AlipaySignature.rsaCheckV1(params, AlipayConfig.alipay_public_key, AlipayConfig.charset,AlipayConfig.sign_type);
@@ -48,12 +48,13 @@ public class AlipayController extends BaseController {
                 // 如果验签成功，更新payment_info
                 if ("TRADE_SUCCESS".equals(status) || "TRADE_FINISHED".equals(status)) {
                     alipayService.updatePaymentStatus(params);
-                    System.out.println("success");
+                    log.info("支付宝回调处理成功");
                     return "success";
                 }
             }
 
         } catch (AlipayApiException e) {
+            log.error("支付宝回调处理异常", e);
             throw new RuntimeException(e);
         }
         return "fail";

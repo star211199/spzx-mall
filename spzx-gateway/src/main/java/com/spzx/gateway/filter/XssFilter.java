@@ -5,7 +5,6 @@ import com.spzx.common.core.utils.html.EscapeUtil;
 import com.spzx.gateway.config.properties.XssProperties;
 import io.netty.buffer.ByteBufAllocator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
@@ -17,6 +16,7 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpRequestDecorator;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -24,37 +24,55 @@ import java.nio.charset.StandardCharsets;
 
 /**
  * 跨站脚本过滤器
+ * 强制启用XSS防护，不允许通过配置关闭
  *
  * @author spzx
  */
 @Component
-@ConditionalOnProperty(value = "security.xss.enabled", havingValue = "true")
 public class XssFilter implements GlobalFilter, Ordered {
-    // 跨站脚本的 xss 配置，nacos自行添加
+    // 跨站脚本的 xss 配置
     @Autowired
     private XssProperties xss;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
-        // xss开关未开启 或 通过nacos关闭，不过滤
-        if (!xss.getEnabled()) {
-            return chain.filter(exchange);
-        }
-        // GET DELETE 不过滤
         HttpMethod method = request.getMethod();
-        if (method == null || method == HttpMethod.GET || method == HttpMethod.DELETE) {
+
+        // 强制启用XSS防护，不允许关闭
+        // 对所有请求方法都进行XSS过滤，包括GET请求（URL参数可能包含恶意脚本）
+        if (method == null) {
             return chain.filter(exchange);
         }
-        // 非json类型，不过滤
-        if (!isJsonRequest(exchange)) {
-            return chain.filter(exchange);
-        }
+
         // excludeUrls 不过滤
         String url = request.getURI().getPath();
         if (StringUtils.matches(url, xss.getExcludeUrls())) {
             return chain.filter(exchange);
         }
+
+        // 如果是GET请求，检查URL参数
+        if (method == HttpMethod.GET) {
+            String queryString = request.getURI().getQuery();
+            if (StringUtils.hasText(queryString)) {
+                String cleanQuery = EscapeUtil.clean(queryString);
+                if (!cleanQuery.equals(queryString)) {
+                    // URL参数包含可疑脚本，替换为清洁的版本
+                    String cleanUri = url + "?" + cleanQuery;
+                    ServerHttpRequest modifiedRequest = request.mutate()
+                            .uri(UriComponentsBuilder.fromUriString(cleanUri).build().toUri())
+                            .build();
+                    return chain.filter(exchange.mutate().request(modifiedRequest).build());
+                }
+            }
+            return chain.filter(exchange);
+        }
+
+        // 非json类型，尝试检查其他请求体
+        if (!isJsonRequest(exchange)) {
+            return chain.filter(exchange);
+        }
+
         ServerHttpRequestDecorator httpRequestDecorator = requestDecorator(exchange);
         return chain.filter(exchange.mutate().request(httpRequestDecorator).build());
 

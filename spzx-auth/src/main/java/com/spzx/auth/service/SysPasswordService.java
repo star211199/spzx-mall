@@ -21,9 +21,11 @@ public class SysPasswordService {
     @Autowired
     private RedisService redisService;
 
-    private int maxRetryCount = CacheConstants.PASSWORD_MAX_RETRY_COUNT;
+    // 使用volatile确保多线程环境下的可见性
+    private volatile int maxRetryCount = CacheConstants.PASSWORD_MAX_RETRY_COUNT;
 
-    private Long lockTime = CacheConstants.PASSWORD_LOCK_TIME;
+    // 使用volatile确保多线程环境下的可见性
+    private volatile Long lockTime = CacheConstants.PASSWORD_LOCK_TIME;
 
     @Autowired
     private SysRecordLogService recordLogService;

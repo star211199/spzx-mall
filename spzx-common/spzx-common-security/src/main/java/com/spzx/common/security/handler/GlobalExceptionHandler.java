@@ -11,6 +11,7 @@ import com.spzx.common.core.web.domain.AjaxResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.validation.BindException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingPathVariableException;
@@ -135,7 +136,8 @@ public class GlobalExceptionHandler
     public Object handleMethodArgumentNotValidException(MethodArgumentNotValidException e)
     {
         log.error(e.getMessage(), e);
-        String message = e.getBindingResult().getFieldError().getDefaultMessage();
+        FieldError fieldError = e.getBindingResult().getFieldError();
+        String message = fieldError != null ? fieldError.getDefaultMessage() : "参数校验失败";
         return AjaxResult.error(message);
     }
 
@@ -145,6 +147,7 @@ public class GlobalExceptionHandler
     @ExceptionHandler(InnerAuthException.class)
     public AjaxResult handleInnerAuthException(InnerAuthException e)
     {
+        // 返回包含异常消息的错误响应
         return AjaxResult.error(e.getMessage());
     }
 
