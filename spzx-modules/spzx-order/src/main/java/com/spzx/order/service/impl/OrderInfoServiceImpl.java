@@ -3,7 +3,6 @@ package com.spzx.order.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.github.pagehelper.PageHelper;
 import com.spzx.cart.api.RemoteCartService;
 import com.spzx.cart.api.domain.CartInfo;
 import com.spzx.common.core.constant.SecurityConstants;
@@ -11,8 +10,6 @@ import com.spzx.common.core.context.SecurityContextHolder;
 import com.spzx.common.core.domain.R;
 import com.spzx.common.core.exception.ServiceException;
 import com.spzx.common.core.utils.StringUtils;
-import com.spzx.common.core.web.domain.AjaxResult;
-import com.spzx.common.rabbit.config.RabbitInitConfigApplicationListener;
 import com.spzx.common.rabbit.constant.MqConst;
 import com.spzx.common.rabbit.service.RabbitService;
 import com.spzx.order.api.domain.OrderInfo;
@@ -30,8 +27,7 @@ import com.spzx.product.api.domain.ProductSku;
 import com.spzx.product.api.domain.vo.SkuLockVo;
 import com.spzx.user.api.RemoteUserAddressService;
 import com.spzx.user.domain.UserAddress;
-import io.lettuce.core.OrderingReadFromAccessor;
-import org.jetbrains.annotations.NotNull;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -40,11 +36,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Transactional(rollbackFor = Exception.class)
 @Service
 public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo> implements IOrderInfoService {
@@ -64,7 +60,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     private IOrderItemService orderItemService;
 
     @Autowired
-    private RedisTemplate redisTemplate;
+    private RedisTemplate<String, Object> redisTemplate;
 
     @Autowired
     private RemoteProductService remoteProductService;
@@ -192,7 +188,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
 
     @Override
     public Long submitOrder(OrderForm orderForm) {
-        // 1.TODO:订单号防止重复提交订单
+        // 1.校验订单号，防止重复提交订单
         // 获取前端页面返回的订单号
         String tradeNo = orderForm.getTradeNo();
         // 后期Redis中的订单号
@@ -212,7 +208,8 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
 
         // 2.插入订单表
         OrderInfo orderInfo = new OrderInfo();
-        // 表单提交的数据
+        // 先获取订单项列表（后续计算运费和总金额都需要用到）
+        List<OrderItem> orderItemList = orderForm.getOrderItemList();
         // 使用后端计算的运费，不信任前端传递的运费
         BigDecimal freightFee = calculateFreight(orderItemList);
         orderInfo.setFeightFee(freightFee);
@@ -227,7 +224,6 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         String orderNo = UUID.randomUUID().toString().replaceAll("-", "");
         orderInfo.setOrderNo(orderNo);
         // 设置订单的总金额
-        List<OrderItem> orderItemList = orderForm.getOrderItemList();
 
         // 搜集变动信息
         StringBuffer sb = new StringBuffer();
@@ -448,13 +444,6 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
                 log.error("订单取消成功，但库存还原失败，订单号：{}", orderId);
             }
         }
-    }
-        String data = stringR.getData();
-        if (StringUtils.hasText(data)) {
-            throw new ServiceException(data);
-        }
-
-
     }
 
     @Override

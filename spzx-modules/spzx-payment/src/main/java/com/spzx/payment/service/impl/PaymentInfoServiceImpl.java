@@ -60,7 +60,7 @@ public class PaymentInfoServiceImpl extends ServiceImpl<PaymentInfoMapper, Payme
         // 设置交易的总金额
         paymentInfo.setAmount(orderInfo.getTotalAmount());
         // 设置交易内容
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         List<OrderItem> orderItemList = orderInfo.getOrderItemList();
         orderItemList.forEach(orderItem -> {
             if(sb.length() > 0) {

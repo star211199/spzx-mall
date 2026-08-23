@@ -2,7 +2,7 @@ package com.spzx.payment.service.impl;
 
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
-import com.alipay.api.AlipaySignature;
+import com.alipay.api.internal.util.AlipaySignature;
 import com.alipay.api.domain.*;
 import com.alipay.api.request.AlipayTradeWapPayRequest;
 import com.alipay.api.response.AlipayTradeWapPayResponse;
@@ -170,14 +170,14 @@ public class AlipayServiceImpl implements IAlipayService {
         paymentInfo.setUpdateTime(new Date());
 
         // 带条件的更新（确保幂等性）
-        int updatedRows = paymentInfoService.update(
+        boolean updated = paymentInfoService.update(
                 paymentInfo,
                 new LambdaUpdateWrapper<PaymentInfo>()
                         .eq(PaymentInfo::getOrderNo, orderNo)
                         .ne(PaymentInfo::getPaymentStatus, "1") // 只更新未支付的订单
         );
 
-        if (updatedRows > 0) {
+        if (updated) {
             log.info("支付状态更新成功，订单号：{}", orderNo);
             // 6. 发送消息通知订单服务更新订单状态
             rabbitService.sendMessage(MqConst.EXCHANGE_PAYMENT_PAY, MqConst.ROUTING_PAYMENT_PAY, orderNo);

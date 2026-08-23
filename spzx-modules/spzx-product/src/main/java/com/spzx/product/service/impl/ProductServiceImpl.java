@@ -1,9 +1,7 @@
 package com.spzx.product.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.spzx.common.core.exception.ServiceException;
 import com.spzx.common.core.utils.bean.BeanUtils;
@@ -31,7 +29,6 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.spi.LocaleNameProvider;
 import java.util.stream.Collectors;
 
 /**
@@ -59,7 +56,6 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 
     @Autowired
     private RedisTemplate redisTemplate; //适合值是任意类型
-
     /**
      * 查询商品列表
      *
@@ -285,12 +281,11 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
             //1.1 构建业务数据Key 形式：前缀+业务唯一标识
             String dataKey = "product:sku:" + skuId;
             // 1.2 从Redis中查询业务数据
-            ProductSku productSku = (ProductSku) redisTemplate.opsForValue().get(dataKey);
-//        if(null != productSku) {
-            if (redisTemplate.hasKey(dataKey)) {
+            Object cachedValue = redisTemplate.opsForValue().get(dataKey);
+            if (cachedValue != null) {
                 // 如果缓存中存在业务数据，直接返回，不必从数据库中查询
                 log.info("命中缓存，直接返回，线程ID：{}，线程名称：{}", Thread.currentThread().getId(), Thread.currentThread().getName());
-                return productSku;
+                return (ProductSku) cachedValue;
             }
             // 如果在缓存中没有查到数据，直接从数据库中查询数据，然后放到缓存当中
             // 从数据库中查询数据，需要上分布式锁
@@ -418,7 +413,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 
     @Override
     public String addStockAndSubSaleNum(List<SkuLockVo> skuLockVoList) {
-        StringBuffer stringBuffer = new StringBuffer();
+        StringBuilder stringBuffer = new StringBuilder();
         skuLockVoList.forEach(item -> {
             // 获取skuId
             Long skuId = item.getSkuId();
