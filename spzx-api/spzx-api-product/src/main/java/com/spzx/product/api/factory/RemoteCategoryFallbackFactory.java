@@ -14,7 +14,7 @@ import java.util.List;
  */
 @Slf4j
 //@Component
-public class RemoteCategoryFallbackFacgtory implements FallbackFactory<RemoteCategoryService> {
+public class RemoteCategoryFallbackFactory implements FallbackFactory<RemoteCategoryService> {
     @Override
     public RemoteCategoryService create(Throwable cause) {
 

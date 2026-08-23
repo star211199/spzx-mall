@@ -4,7 +4,7 @@ import com.spzx.common.core.constant.SecurityConstants;
 import com.spzx.common.core.constant.ServiceNameConstants;
 import com.spzx.common.core.domain.R;
 import com.spzx.product.api.domain.vo.CategoryVo;
-import com.spzx.product.api.factory.RemoteCategoryFallbackFacgtory;
+import com.spzx.product.api.factory.RemoteCategoryFallbackFactory;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -15,11 +15,11 @@ import java.util.List;
  * OpenFeign远程调用接口
  * contextId = "remoteCategoryService" IOC容器中Bean对象的id
  * value = ServiceNameConstants.PRODUCT_SERVICE  指定远程调用的服务名称，通过这个名称到注册中心查找服务，拉取服务列表进行远程调用。
- * fallbackFactory = RemoteCategoryFallbackFacgtory.class  设置降级处理类。远程调用出问题了，都找降级处理类返回兜底结果。
+ * fallbackFactory = RemoteCategoryFallbackFactory.class  设置降级处理类。远程调用出问题了，都找降级处理类返回兜底结果。
  * 我们项目中降级处理用的是OpenFeign组件提供的降级工程类。不是Sentinel。
  */
 @FeignClient(contextId = "remoteCategoryService", value = ServiceNameConstants.PRODUCT_SERVICE,
-        fallbackFactory = RemoteCategoryFallbackFacgtory.class)
+        fallbackFactory = RemoteCategoryFallbackFactory.class)
 public interface RemoteCategoryService {
 
     //声明远程接口：
