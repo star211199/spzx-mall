@@ -41,6 +41,9 @@ nbdist/
 *.xml.versionsBackup
 *.swp
 
+# Local agent/tool scratch state (contains nested worktrees with their own .git)
+.freebuff/
+
 !*/build/*.java
 !*/build/*.html
 !*/build/*.xml
